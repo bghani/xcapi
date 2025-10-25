@@ -4,7 +4,12 @@ A Python package for downloading wildlife recordings from the [Xeno-canto](https
 
 ## Features
 
-- **Comprehensive search**: Support for all Xeno-canto API v3 search tags (species, location, quality, date, etc.)
+- **Comprehensive search**: Support for all Xeno-canto API v3 search tags
+  - Taxonomic: genus, species, subspecies, family, group, English name
+  - Geographic: country, location, area, bounding box, latitude, longitude, altitude
+  - Quality: rating, sound type, sex, life stage, recording method
+  - Temporal: year, month, upload date, time of day
+  - Metadata: recordist, length, license, equipment (device, microphone), sample rate, temperature, and more
 - **Automatic pagination**: Handles large result sets seamlessly
 - **Organized downloads**: Creates per-species folders with standardized naming
 - **Metadata export**: Saves detailed CSV files with recording information
@@ -30,6 +35,18 @@ Download high-quality bird songs from Spain:
 
 ```bash
 xc-dl --grp birds --cnt Spain --type song --q A --output_dir ./recordings
+```
+
+Filter by altitude and time of day:
+
+```bash
+xc-dl --grp birds --alt 1000-2000 --time "06:00-09:00" --output_dir ./alpine
+```
+
+Search by recording equipment and sample rate:
+
+```bash
+xc-dl --grp birds --mic "Sennheiser" --smp ">44100" --q A --output_dir ./hifi
 ```
 
 ### Python API
