@@ -90,8 +90,17 @@ query = QueryBuilder().group("birds").country("Spain").quality("A").build()
 client = XenoCantoClient(api_key="your-api-key")
 recordings = client.search(query)
 
-# Download
+# Download metadata
+downloader = Downloader(output_dir="./data")
+downloader._save_metadata(recordings)
+
+# Download recordings and metadata
 downloader = Downloader(output_dir="./data")
 downloader.download_recordings(recordings)
 ```
-s
+
+
+
+
+
+
