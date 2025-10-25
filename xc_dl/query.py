@@ -212,6 +212,123 @@ class QueryBuilder:
         value = 'yes' if used else 'no'
         return self._add_tag('playback-used', value)
     
+    def time_of_day(self, time: str) -> 'QueryBuilder':
+        """
+        Filter by time of day.
+        
+        Args:
+            time: Time in format 'HH:MM' or range like '06:00-12:00'
+        """
+        return self._add_tag('time', time, quote=True)
+    
+    def altitude(self, altitude: str) -> 'QueryBuilder':
+        """
+        Filter by altitude in meters.
+        
+        Args:
+            altitude: e.g., '100-500', '<1000', '>2000'
+        """
+        return self._add_tag('alt', altitude, quote=True)
+    
+    def latitude(self, latitude: str) -> 'QueryBuilder':
+        """
+        Filter by latitude.
+        
+        Args:
+            latitude: e.g., '40-45', '>50'
+        """
+        return self._add_tag('lat', latitude, quote=True)
+    
+    def longitude(self, longitude: str) -> 'QueryBuilder':
+        """
+        Filter by longitude.
+        
+        Args:
+            longitude: e.g., '-10-0', '<-100'
+        """
+        return self._add_tag('lon', longitude, quote=True)
+    
+    def number_in_group(self, number: str) -> 'QueryBuilder':
+        """
+        Filter by number of individuals in the recording.
+        
+        Args:
+            number: e.g., '1', '2-5', '>10'
+        """
+        return self._add_tag('nr', number)
+    
+    def catalogue_number(self, number: str) -> 'QueryBuilder':
+        """
+        Filter by catalogue number.
+        
+        Args:
+            number: e.g., '12345', '>100000'
+        """
+        return self._add_tag('catnr', number)
+    
+    def temperature(self, temp: str) -> 'QueryBuilder':
+        """
+        Filter by temperature during recording.
+        
+        Args:
+            temp: e.g., '20-30', '<10', '>25'
+        """
+        return self._add_tag('temp', temp)
+    
+    def registration_number(self, regnr: str) -> 'QueryBuilder':
+        """
+        Filter by specimen registration number.
+        
+        Args:
+            regnr: Registration number when specimen was collected
+        """
+        return self._add_tag('regnr', regnr, quote=True)
+    
+    def automatic_recording(self, is_auto: str) -> 'QueryBuilder':
+        """
+        Filter by whether recording was automatic (non-supervised).
+        
+        Args:
+            is_auto: 'yes', 'no', or 'unknown'
+        """
+        return self._add_tag('auto', is_auto)
+    
+    def device(self, device: str) -> 'QueryBuilder':
+        """
+        Filter by recording device used.
+        
+        Args:
+            device: Name or model of recording device
+        """
+        return self._add_tag('dvc', device, quote=True)
+    
+    def microphone(self, microphone: str) -> 'QueryBuilder':
+        """
+        Filter by microphone used.
+        
+        Args:
+            microphone: Name or model of microphone
+        """
+        return self._add_tag('mic', microphone, quote=True)
+    
+    def sample_rate(self, rate: str) -> 'QueryBuilder':
+        """
+        Filter by sample rate.
+        
+        Args:
+            rate: e.g., '44100', '48000', '>44100'
+        """
+        return self._add_tag('smp', rate)
+    
+    def remarks(self, remarks: str) -> 'QueryBuilder':
+        """
+        Filter by remarks text.
+        
+        Args:
+            remarks: Search in recordist's remarks field
+        """
+        return self._add_tag('rmk', remarks, quote=True)
+    
     def build(self) -> str:
         """
         Build and return the final query string.

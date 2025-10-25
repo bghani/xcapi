@@ -95,6 +95,9 @@ Environment Variables:
         '--box',
         help='Bounding box as lat_min,lon_min,lat_max,lon_max'
     )
+    geo_group.add_argument('--lat', '--latitude', help='Latitude or range (e.g., 40-45, >50)')
+    geo_group.add_argument('--lon', '--longitude', help='Longitude or range (e.g., -10-0, <-100)')
+    geo_group.add_argument('--alt', '--altitude', help='Altitude in meters (e.g., 100-500, <1000)')
     
     quality_group = parser.add_argument_group('Quality and type filters')
     quality_group.add_argument('--q', '--quality', help='Quality rating (A, B, C, D, E, or with operators like >B)')
@@ -107,6 +110,7 @@ Environment Variables:
     time_group.add_argument('--year', help='Year or year range (e.g., 2020, 2015-2020)')
     time_group.add_argument('--month', help='Month or month range (1-12)')
     time_group.add_argument('--since', type=int, help='Recordings uploaded in last N days')
+    time_group.add_argument('--time', help='Time of day (e.g., 06:00, 06:00-12:00)')
     
     other_group = parser.add_argument_group('Other filters')
     other_group.add_argument('--rec', '--recordist', help='Recordist name')
@@ -115,6 +119,18 @@ Environment Variables:
     other_group.add_argument('--also', help='Background species')
     other_group.add_argument('--animal_seen', choices=['yes', 'no'], help='Was animal seen?')
     other_group.add_argument('--playback_used', choices=['yes', 'no'], help='Was playback used?')
+    
+    metadata_group = parser.add_argument_group('Recording metadata filters')
+    metadata_group.add_argument('--nr', '--number', help='Number of individuals (e.g., 1, 2-5, >10)')
+    metadata_group.add_argument('--catnr', help='Catalogue number (e.g., 12345, >100000)')
+    metadata_group.add_argument('--temp', '--temperature', help='Temperature (e.g., 20-30, <10)')
+    metadata_group.add_argument('--regnr', help='Specimen registration number')
+    metadata_group.add_argument('--auto', '--automatic', choices=['yes', 'no', 'unknown'], 
+                                help='Automatic (non-supervised) recording')
+    metadata_group.add_argument('--dvc', '--device', help='Recording device used')
+    metadata_group.add_argument('--mic', '--microphone', help='Microphone used')
+    metadata_group.add_argument('--smp', '--sample_rate', help='Sample rate (e.g., 44100, >44100)')
+    metadata_group.add_argument('--rmk', '--remarks', help='Search in remarks field')
     
     args = parser.parse_args()
     
@@ -214,6 +230,12 @@ def build_query_from_args(args) -> str:
             builder.bounding_box(*coords)
         except ValueError as e:
             raise ValueError(f"Invalid bounding box format: {e}")
+    if args.lat:
+        builder.latitude(args.lat)
+    if args.lon:
+        builder.longitude(args.lon)
+    if args.alt:
+        builder.altitude(args.alt)
     
     if args.q:
         builder.quality(args.q)
@@ -232,6 +254,8 @@ def build_query_from_args(args) -> str:
         builder.month(args.month)
     if args.since:
         builder.since(args.since)
+    if args.time:
+        builder.time_of_day(args.time)
     
     if args.rec:
         builder.recordist(args.rec)
@@ -245,6 +269,25 @@ def build_query_from_args(args) -> str:
         builder.animal_seen(args.animal_seen == 'yes')
     if args.playback_used:
         builder.playback_used(args.playback_used == 'yes')
+    
+    if args.nr:
+        builder.number_in_group(args.nr)
+    if args.catnr:
+        builder.catalogue_number(args.catnr)
+    if args.temp:
+        builder.temperature(args.temp)
+    if args.regnr:
+        builder.registration_number(args.regnr)
+    if args.auto:
+        builder.automatic_recording(args.auto)
+    if args.dvc:
+        builder.device(args.dvc)
+    if args.mic:
+        builder.microphone(args.mic)
+    if args.smp:
+        builder.sample_rate(args.smp)
+    if args.rmk:
+        builder.remarks(args.rmk)
     
     return builder.build()
 
