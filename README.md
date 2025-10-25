@@ -24,12 +24,11 @@ git clone https://github.com/bghani/xcapi.git
 cd xcapi
 ```
 
-Step 3: Install the package
+Step 2: Install the package
 
 ```bash
 pip install -e .
 ```
-
 
 ## Usage (with examples)
 
