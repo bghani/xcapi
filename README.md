@@ -10,10 +10,6 @@ A Python package for downloading animal sound recordings from the [Xeno-canto](h
   - Quality: rating, sound type, sex, life stage, recording method
   - Temporal: year, month, upload date, time of day
   - Metadata: recordist, length, license, equipment (device, microphone), sample rate, temperature, and more
-- **Automatic pagination**: Handles large result sets seamlessly
-- **Organized downloads**: Creates per-species folders with standardized naming
-- **Metadata export**: Saves detailed CSV files with recording information
-- **CLI and programmatic**: Use as a command-line tool or import as a Python library
 
 ## Installation
 
