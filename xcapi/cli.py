@@ -1,5 +1,5 @@
 """
-Command-line interface for xc-dl.
+Command-line interface for xcapi.
 
 Provides a comprehensive CLI for searching and downloading Xeno-canto recordings.
 """
@@ -7,29 +7,29 @@ Provides a comprehensive CLI for searching and downloading Xeno-canto recordings
 import argparse
 import os
 import sys
-from xc_dl.query import QueryBuilder
-from xc_dl.client import XenoCantoClient
-from xc_dl.downloader import Downloader
+from xcapi.query import QueryBuilder
+from xcapi.client import XenoCantoClient
+from xcapi.downloader import Downloader
 
 
 def main():
-    """Main entry point for the xc-dl CLI."""
+    """Main entry point for the xcapi CLI."""
     parser = argparse.ArgumentParser(
         description='Download wildlife recordings from Xeno-canto',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Download Orthoptera from Europe
-  xc-dl --grp Orthoptera --area europe --output_dir ./data
+  xcapi --grp Orthoptera --area europe --output_dir ./data
   
   # Download high-quality bird songs from Spain
-  xc-dl --grp birds --cnt Spain --type song --q A
+  xcapi --grp birds --cnt Spain --type song --q A
   
   # Download recordings of a specific species
-  xc-dl --gen Larus --sp fuscus --output_dir ./gulls
+  xcapi --gen Larus --sp fuscus --output_dir ./gulls
   
   # Download recent recordings from last 30 days
-  xc-dl --grp birds --since 30
+  xcapi --grp birds --since 30
   
 Environment Variables:
   XENO_CANTO_API_KEY   Your Xeno-canto API key (required)
@@ -149,11 +149,6 @@ Environment Variables:
             sys.exit(1)
         
         with XenoCantoClient(api_key=api_key) as client:
-            if args.metadata_only:
-                metadata = client.get_metadata(query, verbose=True)
-                print(f"\nMetadata retrieved. Use without --metadata_only to download audio files.")
-                return
-            
             print("Searching for recordings...")
             recordings = client.search(
                 query=query,
@@ -169,6 +164,12 @@ Environment Variables:
             print(f"\nFound {len(recordings)} recordings.")
             
             downloader = Downloader(output_dir=args.output_dir)
+            
+            if args.metadata_only:
+                print(f"Saving metadata to: {downloader.output_dir}\n")
+                downloader.save_metadata_only(recordings, verbose=True)
+                print("\n✓ Metadata saved! Use without --metadata_only to download audio files.")
+                return
             
             print(f"Downloading to: {downloader.output_dir}\n")
             

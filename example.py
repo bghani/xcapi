@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Example usage of the xc-dl package programmatically.
+Example usage of the xcapi package programmatically.
 
-This demonstrates how to use xc-dl as a Python library.
+This demonstrates how to use xcapi as a Python library.
 """
 
-from xc_dl.query import QueryBuilder
-from xc_dl.client import XenoCantoClient
-from xc_dl.downloader import Downloader
+from xcapi.query import QueryBuilder
+from xcapi.client import XenoCantoClient
+from xcapi.downloader import Downloader
 import os
 
 
 def main():
     print("=" * 60)
-    print("xc-dl: Xeno-canto Downloader - Example Usage")
+    print("xcapi: Xeno-canto Downloader - Example Usage")
     print("=" * 60)
     print()
     
@@ -32,7 +32,7 @@ def main():
     if not api_key:
         print("⚠ API Key not found!")
         print()
-        print("To use xc-dl, you need a Xeno-canto API key:")
+        print("To use xcapi, you need a Xeno-canto API key:")
         print("1. Register at https://xeno-canto.org")
         print("2. Verify your email")
         print("3. Get your API key from https://xeno-canto.org/account")
@@ -64,7 +64,7 @@ def main():
             print()
             
             print("4. To download recordings, you can use:")
-            print("   xc-dl --grp birds --cnt Spain --q A --max_results 5")
+            print("   xcapi --grp birds --cnt Spain --q A --max_results 5")
             print()
             
     except Exception as e:

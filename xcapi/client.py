@@ -44,7 +44,7 @@ class XenoCantoClient:
         
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'xc-dl/0.1.0 (Python; requests)'
+            'User-Agent': 'xcapi/0.1.0 (Python; requests)'
         })
     
     def search(

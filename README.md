@@ -1,6 +1,6 @@
-# xc-dl: Xeno-canto Downloader
+# xcapi: Xeno-canto API 
 
-A Python package for downloading wildlife recordings from the [Xeno-canto](https://xeno-canto.org) API.
+A Python package for downloading animal sound recordings from the [Xeno-canto](https://xeno-canto.org) API.
 
 ## Features
 
@@ -17,37 +17,82 @@ A Python package for downloading wildlife recordings from the [Xeno-canto](https
 
 ## Installation
 
+Step 1: Clone the repository
+
+```bash
+git clone <xcapi>
+cd <project-directory>
+```
+
+Step 2: Install uv (if not already installed)
+
+```bash
+pip install uv
+```
+
+Step 3: Install the package
+
 ```bash
 uv pip install -e .
 ```
 
-## Usage
+Alternatively (Recommended usage): This creates the venv AND installs everything in one step
+
+```bash
+uv sync
+```
+
+add then activate the virtual environent
+
+```bash
+source .venv/bin/activate
+```
+
+
+## Usage (with examples)
+
 
 ### Command Line
 
-Download all Orthoptera recordings from Europe:
+
+You need a Xeno-canto API key to use this package. Register at [xeno-canto.org](https://xeno-canto.org) and verify your email to get your key from your [account page](https://xeno-canto.org/account).
+
+Set your API key as an environment variable:
 
 ```bash
-xc-dl --grp Orthoptera --area europe --output_dir ./data
+export XENO_CANTO_API_KEY="your-api-key"
+```
+
+Show all the available command-line options:
+
+```bash
+xcapi --help
+```
+
+Download all Grasshopper recordings from Europe:
+
+```bash
+xcapi --grp grasshoppers --area europe --output_dir ./data
 ```
 
 Download high-quality bird songs from Spain:
 
 ```bash
-xc-dl --grp birds --cnt Spain --type song --q A --output_dir ./recordings
+xcapi --grp birds --cnt Spain --type song --q A --output_dir ./data
 ```
 
 Filter by altitude and time of day:
 
 ```bash
-xc-dl --grp birds --alt 1000-2000 --time "06:00-09:00" --output_dir ./alpine
+xcapi --grp birds --alt 1000-2000 --time "06:00-09:00" --output_dir ./data
 ```
 
-Search by recording equipment and sample rate:
+Search by sample rate:
 
 ```bash
-xc-dl --grp birds --mic "Sennheiser" --smp ">44100" --q A --output_dir ./hifi
+xcapi --grp birds --smp "44100" --q A --output_dir ./data
 ```
+
 
 ### Python API
 
@@ -67,17 +112,4 @@ recordings = client.search(query)
 downloader = Downloader(output_dir="./data")
 downloader.download_recordings(recordings)
 ```
-
-## API Key
-
-You need a Xeno-canto API key to use this package. Register at [xeno-canto.org](https://xeno-canto.org) and verify your email to get your key from your [account page](https://xeno-canto.org/account).
-
-Set your API key as an environment variable:
-
-```bash
-export XENO_CANTO_API_KEY="your-api-key"
-```
-
-## License
-
-MIT
+s

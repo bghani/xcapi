@@ -205,7 +205,7 @@ wheels = [
 ]
 
 [[package]]
-name = "xc-dl"
+name = "xcapi"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

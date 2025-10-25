@@ -217,6 +217,37 @@ class Downloader:
         
         print(f"Metadata saved to {metadata_file}")
     
+    def save_metadata_only(self, recordings: List[Dict], verbose: bool = False) -> str:
+        """
+        Save only metadata to CSV without downloading audio files.
+        
+        This is useful for previewing available recordings or getting
+        metadata for analysis without downloading large audio files.
+        
+        Args:
+            recordings: List of recording dictionaries from XenoCantoClient
+            verbose: Whether to print progress information
+        
+        Returns:
+            Path to the saved metadata file
+        """
+        if not recordings:
+            if verbose:
+                print("No recordings to save.")
+            return ""
+        
+        if verbose:
+            print(f"Saving metadata for {len(recordings)} recordings...")
+        
+        self._save_metadata(recordings)
+        
+        metadata_file = self.output_dir / 'metadata.csv'
+        
+        if verbose:
+            print(f"✓ Metadata saved to {metadata_file}")
+        
+        return str(metadata_file)
+    
     def get_download_info(self) -> Dict:
         """
         Get information about existing downloads.

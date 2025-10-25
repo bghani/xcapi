@@ -44,3 +44,7 @@ data/
 downloads/
 *.mp3
 *.wav
+
+# Scripts
+test.ipynb
+info.md

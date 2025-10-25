@@ -1,19 +1,19 @@
 [project]
-name = "xc-dl"
+name = "xcapi"
 version = "0.1.0"
 description = "A command-line and programmatic downloader for the Xeno-canto API"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "xc-dl contributors"}
+    {name = "Burooj Ghani"}
 ]
 dependencies = [
     "requests>=2.31.0",
 ]
 
 [project.scripts]
-xc-dl = "xc_dl.cli:main"
+xcapi = "xcapi.cli:main"
 
 [build-system]
 requires = ["hatchling"]
