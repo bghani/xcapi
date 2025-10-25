@@ -20,32 +20,14 @@ A Python package for downloading animal sound recordings from the [Xeno-canto](h
 Step 1: Clone the repository
 
 ```bash
-git clone <xcapi>
-cd <project-directory>
-```
-
-Step 2: Install uv (if not already installed)
-
-```bash
-pip install uv
+git clone https://github.com/bghani/xcapi.git
+cd xcapi
 ```
 
 Step 3: Install the package
 
 ```bash
-uv pip install -e .
-```
-
-Alternatively (Recommended usage): This creates the venv AND installs everything in one step
-
-```bash
-uv sync
-```
-
-add then activate the virtual environent
-
-```bash
-source .venv/bin/activate
+pip install -e .
 ```
 
 
@@ -97,9 +79,9 @@ xcapi --grp birds --smp "44100" --q A --output_dir ./data
 ### Python API
 
 ```python
-from xc_dl.query import QueryBuilder
-from xc_dl.client import XenoCantoClient
-from xc_dl.downloader import Downloader
+from xcapi.query import QueryBuilder
+from xcapi.client import XenoCantoClient
+from xcapi.downloader import Downloader
 
 # Build a query
 query = QueryBuilder().group("birds").country("Spain").quality("A").build()
