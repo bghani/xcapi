@@ -1,6 +1,6 @@
 # xcapi: Xeno-canto API 
 
-A Python package for downloading animal sound recordings from the [Xeno-canto](https://xeno-canto.org) API.
+A Python package for downloading animal sounds from the [Xeno-canto](https://xeno-canto.org) API.
 
 ## Features
 

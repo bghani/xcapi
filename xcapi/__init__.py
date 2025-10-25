@@ -1,7 +1,7 @@
 """
 xcapi: A command-line and programmatic downloader for the Xeno-canto API.
 
-This package provides tools to search, download, and organize wildlife recordings
+This package provides tools to search, download, and organize animal sounds
 from the Xeno-canto database (https://xeno-canto.org).
 """
 
