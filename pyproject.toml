@@ -7,14 +7,14 @@ packages = ["xcapi"]
 
 [project]
 name = "xenocanto-api"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Python library for querying and downloading recordings from the Xeno-canto API."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 
 authors = [
-    { name = "Burooj Ghani", , email="buroojghani@gmail.com" }
+    { name = "Burooj Ghani", email="buroojghani@gmail.com" }
 ]
 
 dependencies = [

@@ -52,16 +52,16 @@ Download all Grasshopper recordings and metadata from Europe:
 xcapi --grp grasshoppers --area europe --output_dir ./data
 ```
 
-Download high-quality bird songs and metadata from Spain:
+Download high-quality bird songs and metadata from France:
 
 ```bash
-xcapi --grp birds --cnt Spain --type song --q A --output_dir ./data
+xcapi --grp birds --cnt France --type song --q A --output_dir ./data
 ```
 
-Download bird recordings while filtering by altitude and year:
+Download grasshopper recordings while filtering by recordist, altitude and year:
 
 ```bash
-xcapi --grp birds --alt 1000-2000 --year ">2023" --output_dir ./data
+xcapi --grp grasshoppers --rec "Baudewijn Odé" --alt 1000-2000 --year ">2023" --output_dir ./data
 ```
 
 Download frog sounds while filtering by sample rate and recording quality:
