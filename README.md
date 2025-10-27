@@ -4,7 +4,7 @@ A Python package for downloading animal sounds from the [Xeno-canto](https://xen
 
 ## Features
 
-- **Comprehensive search**: Support for all [Xeno-canto API v3](https://xeno-canto.org/explore/api) search tags
+- **Comprehensive search**: Support for all [Xeno-canto API v3](https://xeno-canto.org/explore/api) search tags:
   - Taxonomic: genus, species, subspecies, family, group, English name
   - Geographic: country, location, area, bounding box, latitude, longitude, altitude
   - Quality: rating, sound type, sex, life stage, recording method
