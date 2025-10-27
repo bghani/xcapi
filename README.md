@@ -58,16 +58,16 @@ Download high-quality bird songs from Spain:
 xcapi --grp birds --cnt Spain --type song --q A --output_dir ./data
 ```
 
-Filter by altitude and time of day:
+Filter by altitude and year:
 
 ```bash
-xcapi --grp birds --alt 1000-2000 --time "06:00-09:00" --output_dir ./data
+xcapi --grp birds --alt 1000-2000 --year ">2023" --output_dir ./data
 ```
 
-Search by sample rate:
+Search by sample rate and recording quality:
 
 ```bash
-xcapi --grp birds --smp "44100" --q A --output_dir ./data
+xcapi --grp birds --smp ">44100" --q "<C" --output_dir ./data
 ```
 
 
@@ -105,7 +105,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `species(species_name)`
 - `subspecies(subspecies_name)`
 - `family(family_name)`
-- `group(group_name)` – e.g. `"birds"`, `"grasshoppers"`, `"bats"`
+- `group(group_name)` – e.g. `"birds"`, `"grasshoppers"`, `"bats"`, `"land mammals"`, `"frogs"`
 - `english_name(name)`
 
 #### **Geographic filters**
@@ -130,7 +130,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 #### **Temporal filters**
 - `year(year_or_range)` – e.g. `"2020"`, `"2015-2020"`, `">2018"`
 - `month(month_or_range)` – e.g. `"6"`, `"1-3"`
-- `since(days)` – recordings uploaded in the last N days
+- `since(days)` – recordings uploaded in the last N days – e.g. `"2"`, `"5"` or since a date – e.g. `"2012-11-09"`.
 - `time_of_day(time_or_range)` – e.g. `"06:00"`, `"06:00-12:00"`
 
 #### **Other and metadata filters**
@@ -147,14 +147,13 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `automatic_recording("yes"|"no"|"unknown")`
 - `device(device_name)`
 - `microphone(microphone_name)`
-- `sample_rate(rate)` – e.g. `"44100"`, `">48000"`
+- `sample_rate(rate)` – e.g. `"44100"`, `">48000"`, `"44100-96000"`
 - `remarks(text)`
 
 </td>
 </tr>
 </table>
  
-
 
 Visit [this page](https://xeno-canto.org/help/search#advanced) to get more detailed information on different search tags.
 
