@@ -69,7 +69,7 @@ xcapi --grp birds --alt 1000-2000 --year ">2023" --output_dir ./data
 Search by sample rate and recording quality:
 
 ```bash
-xcapi --grp birds --smp ">44100" --q "<C" --output_dir ./data
+xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data
 ```
 
 
