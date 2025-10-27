@@ -48,13 +48,13 @@ Show all the available command-line options:
 xcapi --help
 ```
 
-Download all Grasshopper recordings from Europe:
+Download all Grasshopper recordings and metadata from Europe:
 
 ```bash
 xcapi --grp grasshoppers --area europe --output_dir ./data
 ```
 
-Download high-quality bird songs from Spain:
+Download high-quality bird songs and metadata from Spain:
 
 ```bash
 xcapi --grp birds --cnt Spain --type song --q A --output_dir ./data
@@ -93,13 +93,15 @@ query = QueryBuilder().group("birds").country("Spain").quality("A").build()
 client = XenoCantoClient(api_key="your-api-key")
 recordings = client.search(query)
 
-# Download metadata
-downloader = Downloader(output_dir="./data")
-downloader._save_metadata(recordings)
-
 # Download recordings and metadata
 downloader = Downloader(output_dir="./data")
 downloader.download_recordings(recordings)
+
+# Download just the metadata
+downloader = Downloader(output_dir="./data")
+downloader._save_metadata(recordings)
+
+
 ```
 
 In this way, you can chain multiple filters when building a query. Here is a list of all filters that can be used:
