@@ -94,6 +94,71 @@ downloader = Downloader(output_dir="./data")
 downloader.download_recordings(recordings)
 ```
 
+In this way, you can chain multiple filters when building a query. Here is a list of all filters that can be used:
+
+ <table>
+<tr>
+<td width="50%" valign="top">
+
+### **Taxonomic filters**
+- `genus(genus_name)`
+- `species(species_name)`
+- `subspecies(subspecies_name)`
+- `family(family_name)`
+- `group(group_name)` – e.g. `"birds"`, `"grasshoppers"`, `"bats"`
+- `english_name(name)`
+
+### **Geographic filters**
+- `country(country_name)`
+- `location(location_name)`
+- `area(region_name)` – e.g. `"Europe"`, `"Asia"`, `"Africa"`
+- `bounding_box(lat_min, lon_min, lat_max, lon_max)`
+- `latitude(range_or_operator)` – e.g. `"40-45"`, `">50"`
+- `longitude(range_or_operator)` – e.g. `"-10-0"`, `"<-100"`
+- `altitude(range_or_operator)` – e.g. `"100-500"`, `"<1000"`
+
+### **Quality and type filters**
+- `quality(rating)` – one of `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, or operators like `">B"`, `"<C"`
+- `sound_type(type)` – e.g. `"song"`, `"call"`, `"drumming"`
+- `sex(sex)` – e.g. `"male"`, `"female"`, `"uncertain"`
+- `life_stage(stage)` – e.g. `"adult"`, `"juvenile"`
+- `method(method)` – e.g. `"field recording"`
+
+</td>
+<td width="50%" valign="top">
+
+### **Temporal filters**
+- `year(year_or_range)` – e.g. `"2020"`, `"2015-2020"`, `">2018"`
+- `month(month_or_range)` – e.g. `"6"`, `"1-3"`
+- `since(days)` – recordings uploaded in the last N days
+- `time_of_day(time_or_range)` – e.g. `"06:00"`, `"06:00-12:00"`
+
+### **Other and metadata filters**
+- `recordist(name)` – e.g. `"John Doe"`
+- `length(length_or_range)` – e.g. `"10-20"`, `"<30"`, `">60"`
+- `license(license_type)` – e.g. `"cc-by"`, `"cc0"`
+- `also(species)` – background species
+- `animal_seen(True/False)`
+- `playback_used(True/False)`
+- `number_in_group(value)` – e.g. `"1"`, `"2-5"`, `">10"`
+- `catalogue_number(number)` – e.g. `"12345"`, `">100000"`
+- `temperature(value)` – e.g. `"20-30"`, `"<10"`
+- `registration_number(value)`
+- `automatic_recording("yes"|"no"|"unknown")`
+- `device(device_name)`
+- `microphone(microphone_name)`
+- `sample_rate(rate)` – e.g. `"44100"`, `">48000"`
+- `remarks(text)`
+
+</td>
+</tr>
+</table>
+ 
+
+
+Visit [this page](https://xeno-canto.org/help/search#advanced) to get more detailed information on different search tags.
+
+
 
 
 

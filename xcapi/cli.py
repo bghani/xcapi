@@ -15,7 +15,7 @@ from xcapi.downloader import Downloader
 def main():
     """Main entry point for the xcapi CLI."""
     parser = argparse.ArgumentParser(
-        description='Download wildlife recordings from Xeno-canto',
+        description='Download animal sound recordings from Xeno-canto',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -80,58 +80,77 @@ Environment Variables:
     )
     
     tax_group = parser.add_argument_group('Taxonomic filters')
-    tax_group.add_argument('--gen', '--genus', help='Genus name')
-    tax_group.add_argument('--sp', '--species', help='Species name')
-    tax_group.add_argument('--ssp', '--subspecies', help='Subspecies name')
-    tax_group.add_argument('--fam', '--family', help='Family name')
-    tax_group.add_argument('--grp', '--group', help='Group (birds, grasshoppers, bats)')
-    tax_group.add_argument('--en', '--english', help='English common name')
+    tax_group.add_argument('--gen', '--genus', help='Genus name (e.g., Corvus)')
+    tax_group.add_argument('--sp', '--species', help='Species name (e.g., "Pica pica"). To perform a search for a species name that has multiple words, you must enclose the words in double quotes.')
+    tax_group.add_argument('--ssp', '--subspecies', help='Subspecies name. To perform a search for a subspecies name that has multiple words, you must enclose the words in double quotes.')
+    tax_group.add_argument('--en', '--english', help='English common name (e.g., "Common blackbird"). To perform a search for a common name that has multiple words, you must enclose the words in double quotes.')
+    tax_group.add_argument('--fam', '--family', help='Family name. To perform a search for a family name that has multiple words, you must enclose the words in double quotes.')
+    tax_group.add_argument('--grp', '--group', help='Taxonomic group (e.g., birds, grasshoppers, bats). To perform a search for a taxonomic group that has multiple words, you must enclose the words in double quotes (e.g., --grp "land mammals").')
     
+
     geo_group = parser.add_argument_group('Geographic filters')
-    geo_group.add_argument('--cnt', '--country', help='Country name')
-    geo_group.add_argument('--loc', '--location', help='Location/locality name')
-    geo_group.add_argument('--area', help='Continent/region (e.g., europe, asia, africa)')
-    geo_group.add_argument(
-        '--box',
-        help='Bounding box as lat_min,lon_min,lat_max,lon_max'
-    )
-    geo_group.add_argument('--lat', '--latitude', help='Latitude or range (e.g., 40-45, >50)')
-    geo_group.add_argument('--lon', '--longitude', help='Longitude or range (e.g., -10-0, <-100)')
-    geo_group.add_argument('--alt', '--altitude', help='Altitude in meters (e.g., 100-500, <1000)')
-    
+    geo_group.add_argument('--cnt', '--country', help='Country name (e.g., Germany). To perform a search for a country that has multiple words, you must enclose the words in double quotes (e.g., --cnt "Costa Rica")')
+    geo_group.add_argument('--loc', '--location', help='Locality or site name (e.g., tambopata). To perform a search for a location that has multiple words, you must enclose the words in double quotes (e.g., --loc "New Delhi")')
+    geo_group.add_argument('--area', help='Continent or region (e.g., Europe, Asia, Africa)')
+    geo_group.add_argument('--box', help='Bounding box as lat_min,lon_min,lat_max,lon_max')
+    geo_group.add_argument('--lat', '--latitude', help='Latitude or range (e.g., 40-45, ">50"). Quotes are required in most shells for < or >.')
+    geo_group.add_argument('--lon', '--longitude', help='Longitude or range (e.g., -10-0, "<-100"). Quotes are required in most shells for < or >.')
+    geo_group.add_argument('--alt', '--altitude', help='Altitude in meters (e.g., 100-500, "<1000"). Quotes are required in most shells for < or >.')
+
     quality_group = parser.add_argument_group('Quality and type filters')
-    quality_group.add_argument('--q', '--quality', help='Quality rating (A, B, C, D, E, or with operators like >B)')
-    quality_group.add_argument('--type', help='Sound type (song, call, etc.)')
+    quality_group.add_argument(
+        '--q', '--quality',
+        help='Recording quality rating (A–E). Supports operators like A, ">B" or "<C". '
+            'Quotes are required in most shells for < or >, e.g. --q ">B".'
+    )
+    quality_group.add_argument('--type', help='Sound type (e.g., song, call, alarm, etc.)')
     quality_group.add_argument('--sex', help='Sex (male, female, uncertain)')
     quality_group.add_argument('--stage', help='Life stage (adult, juvenile, etc.)')
     quality_group.add_argument('--method', help='Recording method')
-    
+
     time_group = parser.add_argument_group('Time filters')
-    time_group.add_argument('--year', help='Year or year range (e.g., 2020, 2015-2020)')
-    time_group.add_argument('--month', help='Month or month range (1-12)')
-    time_group.add_argument('--since', type=int, help='Recordings uploaded in last N days')
-    time_group.add_argument('--time', help='Time of day (e.g., 06:00, 06:00-12:00)')
-    
+    time_group.add_argument('--year', help='Year or range (e.g., 2020, 2015-2020). Quotes are required in most shells for < or > (e.g., --year ">2020").')
+    time_group.add_argument('--month', help='Month or range (e.g., 6, 1-7). Quotes are required in most shells for < or > (e.g., --month "<5")')
+    time_group.add_argument('--since', type=int, help='Recordings uploaded since YYYY-MM-DD (e.g., 2012-11-09) or since last N days (e.g., 2, 3)')
+    time_group.add_argument('--time', help='Time of day or range (e.g., 06:00, 06:00-12:00)')
+
     other_group = parser.add_argument_group('Other filters')
-    other_group.add_argument('--rec', '--recordist', help='Recordist name')
-    other_group.add_argument('--len', '--length', help='Recording length (e.g., 10-20, <30, >60)')
-    other_group.add_argument('--lic', '--license', help='License type')
-    other_group.add_argument('--also', help='Background species')
-    other_group.add_argument('--animal_seen', choices=['yes', 'no'], help='Was animal seen?')
-    other_group.add_argument('--playback_used', choices=['yes', 'no'], help='Was playback used?')
-    
+    other_group.add_argument('--rec', '--recordist', help='Recordist name (e.g., "Raziya"). To perform a search for a location that has multiple words, you must enclose the words in double quotes (e.g., "Raziya Qadri") ')
+    other_group.add_argument(
+        '--len', '--length',
+        help='Recording length in seconds (e.g., 10, 20, 10-20, "<30", ">60"). '
+            'Ranges and comparison operators are supported. Quotes are required in most shells for < or >.'
+    )
+    other_group.add_argument('--lic', '--license', help='License type (e.g., CC-BY, CC0)')
+    other_group.add_argument('--also', help='Background species name. To perform a search for a background species name that has multiple words, you must enclose the words in double quotes.')
+    other_group.add_argument('--animal_seen', choices=['yes', 'no'],
+                            help='Was the animal seen? (yes/no)')
+    other_group.add_argument('--playback_used', choices=['yes', 'no'],
+                            help='Was playback used? (yes/no)')
+
     metadata_group = parser.add_argument_group('Recording metadata filters')
-    metadata_group.add_argument('--nr', '--number', help='Number of individuals (e.g., 1, 2-5, >10)')
-    metadata_group.add_argument('--catnr', help='Catalogue number (e.g., 12345, >100000)')
-    metadata_group.add_argument('--temp', '--temperature', help='Temperature (e.g., 20-30, <10)')
+    metadata_group.add_argument(
+        '--nr', '--number',
+        help='Number of individuals (e.g., 1, 2-5, ">10"). Quotes are required in most shells for < or >.'
+    )
+    metadata_group.add_argument(
+        '--catnr', help='Catalogue number (e.g., 12345, ">100000", 5000-10000). Quotes are required in most shells for < or >.'
+    )
+    metadata_group.add_argument(
+        '--temp', '--temperature',
+        help='Temperature in °C (e.g., 20-30, "<10", ">35"). Quotes are required in most shells for < or >.'
+    )
     metadata_group.add_argument('--regnr', help='Specimen registration number')
-    metadata_group.add_argument('--auto', '--automatic', choices=['yes', 'no', 'unknown'], 
-                                help='Automatic (non-supervised) recording')
-    metadata_group.add_argument('--dvc', '--device', help='Recording device used')
-    metadata_group.add_argument('--mic', '--microphone', help='Microphone used')
-    metadata_group.add_argument('--smp', '--sample_rate', help='Sample rate (e.g., 44100, >44100)')
-    metadata_group.add_argument('--rmk', '--remarks', help='Search in remarks field')
-    
+    metadata_group.add_argument(
+        '--auto', '--automatic', choices=['yes', 'no', 'unknown'],
+        help='Automatic (non-supervised) recording'
+    )
+    metadata_group.add_argument('--dvc', '--device', help='Recording device (e.g., "Zoom F3").  To perform a search for a recording device that has multiple words, you must enclose the words in double quotes.')
+    metadata_group.add_argument('--mic', '--microphone', help='Microphone model. To perform a search for a microphone model that has multiple words, you must enclose the words in double quotes.')
+    metadata_group.add_argument('--smp', '--sample_rate',
+                                help='Sample rate or a range in Hz (e.g., 44100, 44100-100000, ">44100"). Quotes are required in most shells for < or >.')
+    metadata_group.add_argument('--rmk', '--remarks', help='Search in remarks field text')
+        
     args = parser.parse_args()
     
     try:

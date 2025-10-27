@@ -6,6 +6,7 @@ using all supported Xeno-canto API search tags.
 """
 
 from typing import List, Optional
+import re
 
 
 class QueryBuilder:
@@ -37,11 +38,20 @@ class QueryBuilder:
         Returns:
             Self for method chaining
         """
-        if value:
-            if quote or ' ' in value:
-                self._tags.append(f'{tag}:"{value}"')
-            else:
-                self._tags.append(f'{tag}:{value}')
+        if not value:
+            return self
+        # Detect range pattern like 10-15 or 2020-2024 (numbers with dash)
+        is_range = bool(re.match(r'^\d+(\-\d+)?$', value))
+
+        # Should we quote it?
+        if (
+            not is_range and
+            (quote or ' ' in value or value.startswith(('>', '<', '=')))
+        ):
+            if not (value.startswith('"') and value.endswith('"')):
+                value = f'"{value}"'
+
+        self._tags.append(f"{tag}:{value}")
         return self
     
     def genus(self, genus: str) -> 'QueryBuilder':
