@@ -20,9 +20,9 @@ Install the package using pip:
 ```bash
 pip install xenocanto-api
 ```
-### API Key Setup
+#### API Key Setup
 
-Users need a Xeno-canto API key to download recordings from Xeno-canto API v3:
+Starting October 10, 2025 users need a Xeno-canto API key to download recordings from the Xeno-canto API:
 1. Register at [https://xeno-canto.org](https://xeno-canto.org)
 2. Verify email
 3. Get key from [https://xeno-canto.org/account](https://xeno-canto.org/account)
