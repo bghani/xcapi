@@ -10,6 +10,8 @@ A Python package for downloading animal sounds from the [Xeno-canto](https://xen
   - Quality: rating, sound type, sex, life stage, recording method
   - Temporal: year, month, upload date, time of day
   - Metadata: recordist, length, license, equipment (device, microphone), sample rate, temperature, and more
+- **Operator and range support:**: Use comparisons like <, >, and ranges (10-20) across supported fields.
+- **Python CLI and API support:**: Use the package both via a command-line interface (CLI) and as a Python API using a simple query builder. 
 
 ## Installation
 
