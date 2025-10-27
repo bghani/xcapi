@@ -1,23 +1,48 @@
-[project]
-name = "xcapi"
-version = "0.1.0"
-description = "A command-line and programmatic downloader for the Xeno-canto API"
-readme = "README.md"
-requires-python = ">=3.8"
-license = {text = "MIT"}
-authors = [
-    {name = "Burooj Ghani"}
-]
-dependencies = [
-    "requests>=2.31.0",
-]
-
-[project.scripts]
-xcapi = "xcapi.cli:main"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-dev-dependencies = []
+[tool.hatch.build.targets.wheel]
+packages = ["xcapi"]
+
+[project]
+name = "xenocanto-api"
+version = "0.1.0"
+description = "A Python library for querying and downloading recordings from the Xeno-canto API."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Burooj Ghani", , email="buroojghani@gmail.com" }
+]
+
+dependencies = [
+    "requests>=2.31.0",
+]
+
+keywords = [
+    "xeno-canto",
+    "bioacoustics",
+    "biodiversity",
+    "birds",
+    "animal sounds",
+    "acoustic monitoring",
+    "bioacoustic-AI"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Intended Audience :: Science/Research",
+]
+
+[project.urls]
+Homepage = "https://github.com/bghani/xcapi"
+Issues = "https://github.com/bghani/xcapi/issues"
+
+[project.scripts]
+xcapi = "xcapi.cli:main"

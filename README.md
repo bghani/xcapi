@@ -15,22 +15,15 @@ A Python package for downloading animal sounds from the [Xeno-canto](https://xen
 
 ## Installation
 
-Step 1: Clone the repository
+Install the package using pip:
 
 ```bash
-git clone https://github.com/bghani/xcapi.git
-cd xcapi
-```
-
-Step 2: Install the package
-
-```bash
-pip install -e .
+pip install xenocanto-api
 ```
 
 ## Usage (with examples)
 
-You need a Xeno-canto API key to use this package. Register at [xeno-canto.org](https://xeno-canto.org) and verify your email to get your key from your [account page](https://xeno-canto.org/account).
+You need a Xeno-canto API key to use this package. Register at [xeno-canto.org](https://xeno-canto.org) to create a Xeno-canto acccount and verify your email to get your key from your [account page](https://xeno-canto.org/account).
 
 The package can be used either as a CLI (Command Line Interface) for quick terminal-based commands, or as a Python API for programmatic access through the QueryBuilder, XenoCantoClient, and Downloader classes.
 
