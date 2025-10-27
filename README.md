@@ -142,7 +142,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `time_of_day(time_or_range)` – e.g. `"06:00"`, `"06:00-12:00"`
 
 #### **Other and metadata filters**
-- `recordist(name)` – e.g. `"John Doe"`
+- `recordist(name)` – e.g. `"Raziya Qadri"`
 - `length(length_or_range)` – e.g. `"10-20"`, `"<30"`, `">60"`
 - `license(license_type)` – e.g. `"cc-by"`, `"cc0"`
 - `also(species)` – background species
