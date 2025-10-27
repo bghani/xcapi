@@ -100,7 +100,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 <tr>
 <td width="50%" valign="top">
 
-### **Taxonomic filters**
+#### **Taxonomic filters**
 - `genus(genus_name)`
 - `species(species_name)`
 - `subspecies(subspecies_name)`
@@ -108,7 +108,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `group(group_name)` – e.g. `"birds"`, `"grasshoppers"`, `"bats"`
 - `english_name(name)`
 
-### **Geographic filters**
+#### **Geographic filters**
 - `country(country_name)`
 - `location(location_name)`
 - `area(region_name)` – e.g. `"Europe"`, `"Asia"`, `"Africa"`
@@ -117,7 +117,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `longitude(range_or_operator)` – e.g. `"-10-0"`, `"<-100"`
 - `altitude(range_or_operator)` – e.g. `"100-500"`, `"<1000"`
 
-### **Quality and type filters**
+#### **Quality and type filters**
 - `quality(rating)` – one of `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, or operators like `">B"`, `"<C"`
 - `sound_type(type)` – e.g. `"song"`, `"call"`, `"drumming"`
 - `sex(sex)` – e.g. `"male"`, `"female"`, `"uncertain"`
@@ -127,13 +127,13 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 </td>
 <td width="50%" valign="top">
 
-### **Temporal filters**
+#### **Temporal filters**
 - `year(year_or_range)` – e.g. `"2020"`, `"2015-2020"`, `">2018"`
 - `month(month_or_range)` – e.g. `"6"`, `"1-3"`
 - `since(days)` – recordings uploaded in the last N days
 - `time_of_day(time_or_range)` – e.g. `"06:00"`, `"06:00-12:00"`
 
-### **Other and metadata filters**
+#### **Other and metadata filters**
 - `recordist(name)` – e.g. `"John Doe"`
 - `length(length_or_range)` – e.g. `"10-20"`, `"<30"`, `">60"`
 - `license(license_type)` – e.g. `"cc-by"`, `"cc0"`
