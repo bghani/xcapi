@@ -60,16 +60,22 @@ Download high-quality bird songs from Spain:
 xcapi --grp birds --cnt Spain --type song --q A --output_dir ./data
 ```
 
-Filter by altitude and year:
+Download bird recordings while filtering by altitude and year:
 
 ```bash
 xcapi --grp birds --alt 1000-2000 --year ">2023" --output_dir ./data
 ```
 
-Search by sample rate and recording quality:
+Download frog sounds while filtering by sample rate and recording quality:
 
 ```bash
 xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data
+```
+
+Download just the metadata:
+
+```bash
+xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data --metadata_only
 ```
 
 
