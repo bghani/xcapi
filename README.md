@@ -36,13 +36,14 @@ The package can be used either as a CLI (Command Line Interface) for quick termi
 
 #### API key setup
 
-**Option 1: Pass it directly (simplest)**
-```bash
-xcapi --api_key "your-api-key" --grp birds --cnt Spain
-```
-**Option 2: Use an environmental variable**
+**Option 1: Use an environmental variable**
 ```bash
 export XENO_CANTO_API_KEY="your-api-key"
+```
+
+**Option 2: Pass it directly each time**
+```bash
+xcapi --api_key "your-api-key" --grp birds --cnt Spain
 ```
 
 Show all the available command-line options:
