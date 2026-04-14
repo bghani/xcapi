@@ -10,6 +10,8 @@ import sys
 from xcapi.query import QueryBuilder
 from xcapi.client import XenoCantoClient
 from xcapi.downloader import Downloader
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def main():

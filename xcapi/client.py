@@ -8,6 +8,7 @@ import os
 import time
 from typing import Dict, List, Optional
 import requests
+from dotenv import load_dotenv
 
 
 class XenoCantoClient:
@@ -35,11 +36,12 @@ class XenoCantoClient:
         Raises:
             ValueError: If no API key is provided or found in environment
         """
+        load_dotenv()
         self.api_key = api_key or os.getenv('XENO_CANTO_API_KEY')
         if not self.api_key:
             raise ValueError(
                 "API key is required. Provide it as an argument or set "
-                "XENO_CANTO_API_KEY environment variable."
+                "XENO_CANTO_API_KEY in environment or .env file."
             )
         
         self.session = requests.Session()

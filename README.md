@@ -34,8 +34,11 @@ The package can be used either as a CLI (Command Line Interface) for quick termi
 
 ### Command Line (CLI)
 
-Set your API key as an environment variable:
+**Option 1: Pass it directly (simplest)**
+```bash
+xcapi --api_key "your-api-key" --grp birds --cnt Spain
 
+**Option 2: Use an environmental variable**
 ```bash
 export XENO_CANTO_API_KEY="your-api-key"
 ```
@@ -84,11 +87,22 @@ from xcapi.query import QueryBuilder
 from xcapi.client import XenoCantoClient
 from xcapi.downloader import Downloader
 
+
+# Add api key
+
+client = XenoCantoClient(api_key="your-api-key")
+
+# Alternatively, use a .env file:
+# Create a file called .env in your working directory and add:
+# XENO_CANTO_API_KEY=your-api-key
+# And then run
+
+client = XenoCantoClient()
+
 # Build a query
 query = QueryBuilder().group("birds").country("Spain").quality("A").build()
 
 # Fetch recordings
-client = XenoCantoClient(api_key="your-api-key")
 recordings = client.search(query)
 
 # Download recordings and metadata
