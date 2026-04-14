@@ -75,7 +75,7 @@ class QueryBuilder:
         Filter by taxonomic group.
         
         Args:
-            group: One of 'birds', 'grasshoppers', 'bats'
+            group: One of 'birds', 'grasshoppers', 'bats', 'land mammals', 'frogs', 'soundscape'
         """
         return self._add_tag('grp', group)
     
@@ -199,6 +199,15 @@ class QueryBuilder:
         """
         return self._add_tag('since', str(days))
     
+    def uploaded(self, uploaded: str) -> 'QueryBuilder':
+        """
+        Filter by upload date.
+        
+        Args:
+            uploaded: e.g., '2024', '2020-2024', '>2022'
+        """
+        return self._add_tag('uploaded', uploaded)
+    
     def license(self, license_type: str) -> 'QueryBuilder':
         """
         Filter by license type.
@@ -215,12 +224,12 @@ class QueryBuilder:
     def animal_seen(self, seen: bool) -> 'QueryBuilder':
         """Filter by whether the animal was seen."""
         value = 'yes' if seen else 'no'
-        return self._add_tag('animal-seen', value)
+        return self._add_tag('seen', value)
     
     def playback_used(self, used: bool) -> 'QueryBuilder':
         """Filter by whether playback was used."""
         value = 'yes' if used else 'no'
-        return self._add_tag('playback-used', value)
+        return self._add_tag('playback', value)
     
     def time_of_day(self, time: str) -> 'QueryBuilder':
         """
@@ -257,24 +266,16 @@ class QueryBuilder:
             longitude: e.g., '-10-0', '<-100'
         """
         return self._add_tag('lon', longitude, quote=True)
-    
-    def number_in_group(self, number: str) -> 'QueryBuilder':
-        """
-        Filter by number of individuals in the recording.
         
-        Args:
-            number: e.g., '1', '2-5', '>10'
-        """
-        return self._add_tag('nr', number)
     
-    def catalogue_number(self, number: str) -> 'QueryBuilder':
+    def xc_number(self, number: str) -> 'QueryBuilder':
         """
-        Filter by catalogue number.
+        Filter by xeno-canto catalogue number.
         
         Args:
             number: e.g., '12345', '>100000'
         """
-        return self._add_tag('catnr', number)
+        return self._add_tag('nr', number)
     
     def temperature(self, temp: str) -> 'QueryBuilder':
         """
@@ -351,3 +352,5 @@ class QueryBuilder:
     def __str__(self) -> str:
         """Return the query string."""
         return self.build()
+    
+    

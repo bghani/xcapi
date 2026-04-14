@@ -197,7 +197,7 @@ class Downloader:
         
         fieldnames = [
             'id', 'gen', 'sp', 'ssp', 'grp', 'en', 'rec', 'cnt', 'loc',
-            'lat', 'lng', 'alt', 'type', 'sex', 'stage', 'method',
+            'lat', 'lon', 'alt', 'type', 'sex', 'stage', 'method',
             'url', 'file', 'file-name', 'lic', 'q', 'length', 'time',
             'date', 'uploaded', 'rmk', 'animal-seen', 'playback-used',
             'temp', 'regnr', 'auto', 'dvc', 'mic', 'smp'

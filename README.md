@@ -97,7 +97,7 @@ downloader.download_recordings(recordings)
 
 # Download just the metadata
 downloader = Downloader(output_dir="./data")
-downloader._save_metadata(recordings)
+downloader.save_metadata_only(recordings)
 
 
 ```
@@ -128,7 +128,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 #### **Quality and type filters**
 - `quality(rating)` – one of `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, or operators like `">B"`, `"<C"`
 - `sound_type(type)` – e.g. `"song"`, `"call"`, `"drumming"`
-- `sex(sex)` – e.g. `"male"`, `"female"`, `"uncertain"`
+- `sex(sex)` – e.g. `"male"`, `"female"`
 - `life_stage(stage)` – e.g. `"adult"`, `"juvenile"`
 - `method(method)` – e.g. `"field recording"`
 
@@ -148,8 +148,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `also(species)` – background species
 - `animal_seen(True/False)`
 - `playback_used(True/False)`
-- `number_in_group(value)` – e.g. `"1"`, `"2-5"`, `">10"`
-- `catalogue_number(number)` – e.g. `"12345"`, `">100000"`
+- `xc_number(value)` – e.g. `"76967"`, `"88888-88890"`, `">76967"`
 - `temperature(value)` – e.g. `"20-30"`, `"<10"`
 - `registration_number(value)`
 - `automatic_recording("yes"|"no"|"unknown")`

@@ -85,7 +85,7 @@ Environment Variables:
     tax_group.add_argument('--ssp', '--subspecies', help='Subspecies name. To perform a search for a subspecies name that has multiple words, you must enclose the words in double quotes.')
     tax_group.add_argument('--en', '--english', help='English common name (e.g., "Common blackbird"). To perform a search for a common name that has multiple words, you must enclose the words in double quotes.')
     tax_group.add_argument('--fam', '--family', help='Family name. To perform a search for a family name that has multiple words, you must enclose the words in double quotes.')
-    tax_group.add_argument('--grp', '--group', help='Taxonomic group (e.g., birds, grasshoppers, bats). To perform a search for a taxonomic group that has multiple words, you must enclose the words in double quotes (e.g., --grp "land mammals").')
+    tax_group.add_argument('--grp', '--group', help='Taxonomic group (e.g., birds, grasshoppers, bats, frogs, land mammals, soundscape). To perform a search for a taxonomic group that has multiple words, you must enclose the words in double quotes (e.g., --grp "land mammals").')
     
 
     geo_group = parser.add_argument_group('Geographic filters')
@@ -104,14 +104,14 @@ Environment Variables:
             'Quotes are required in most shells for < or >, e.g. --q ">B".'
     )
     quality_group.add_argument('--type', help='Sound type (e.g., song, call, alarm, etc.)')
-    quality_group.add_argument('--sex', help='Sex (male, female, uncertain)')
+    quality_group.add_argument('--sex', help='Sex (male, female)')
     quality_group.add_argument('--stage', help='Life stage (adult, juvenile, etc.)')
     quality_group.add_argument('--method', help='Recording method')
 
     time_group = parser.add_argument_group('Time filters')
     time_group.add_argument('--year', help='Year or range (e.g., 2020, 2015-2020). Quotes are required in most shells for < or > (e.g., --year ">2020").')
     time_group.add_argument('--month', help='Month or range (e.g., 6, 1-7). Quotes are required in most shells for < or > (e.g., --month "<5")')
-    time_group.add_argument('--since', type=int, help='Recordings uploaded since YYYY-MM-DD (e.g., 2012-11-09) or since last N days (e.g., 2, 3)')
+    time_group.add_argument('--since', help='Recordings uploaded since YYYY-MM-DD (e.g., 2012-11-09) or wintin last N days (e.g., 2, 3)')
     time_group.add_argument('--time', help='Time of day or range (e.g., 06:00, 06:00-12:00)')
 
     other_group = parser.add_argument_group('Other filters')
@@ -123,18 +123,15 @@ Environment Variables:
     )
     other_group.add_argument('--lic', '--license', help='License type (e.g., CC-BY, CC0)')
     other_group.add_argument('--also', help='Background species name. To perform a search for a background species name that has multiple words, you must enclose the words in double quotes.')
-    other_group.add_argument('--animal_seen', choices=['yes', 'no'],
+    other_group.add_argument('--seen', choices=['yes', 'no'],
                             help='Was the animal seen? (yes/no)')
-    other_group.add_argument('--playback_used', choices=['yes', 'no'],
+    other_group.add_argument('--playback', choices=['yes', 'no'],
                             help='Was playback used? (yes/no)')
 
     metadata_group = parser.add_argument_group('Recording metadata filters')
     metadata_group.add_argument(
-        '--nr', '--number',
-        help='Number of individuals (e.g., 1, 2-5, ">10"). Quotes are required in most shells for < or >.'
-    )
-    metadata_group.add_argument(
-        '--catnr', help='Catalogue number (e.g., 12345, ">100000", 5000-10000). Quotes are required in most shells for < or >.'
+        '--nr', '--recording_number',
+        help='XC recording number or range (e.g. 76967, 88888-88890, ">76960"). Quotes are required in most shells for < or >.'
     )
     metadata_group.add_argument(
         '--temp', '--temperature',
@@ -285,15 +282,13 @@ def build_query_from_args(args) -> str:
         builder.license(args.lic)
     if args.also:
         builder.also(args.also)
-    if args.animal_seen:
-        builder.animal_seen(args.animal_seen == 'yes')
-    if args.playback_used:
-        builder.playback_used(args.playback_used == 'yes')
+    if args.seen:
+        builder.animal_seen(args.seen == 'yes')
+    if args.playback:
+        builder.playback_used(args.playback == 'yes')
     
     if args.nr:
-        builder.number_in_group(args.nr)
-    if args.catnr:
-        builder.catalogue_number(args.catnr)
+        builder.xc_number(args.nr)
     if args.temp:
         builder.temperature(args.temp)
     if args.regnr:
