@@ -7,7 +7,7 @@ packages = ["xcapi"]
 
 [project]
 name = "xenocanto-api"
-version = "0.1.1"
+version = "0.2.0"
 description = "A Python library for querying and downloading recordings from the Xeno-canto API."
 readme = "README.md"
 requires-python = ">=3.8"
