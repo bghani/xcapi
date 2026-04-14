@@ -37,7 +37,7 @@ The package can be used either as a CLI (Command Line Interface) for quick termi
 **Option 1: Pass it directly (simplest)**
 ```bash
 xcapi --api_key "your-api-key" --grp birds --cnt Spain
-
+```
 **Option 2: Use an environmental variable**
 ```bash
 export XENO_CANTO_API_KEY="your-api-key"
@@ -92,11 +92,11 @@ from xcapi.downloader import Downloader
 
 client = XenoCantoClient(api_key="your-api-key")
 
-# Alternatively, use a .env file:
+# Alternatively, use a .env file to avoid passing the key each time:
 # Create a file called .env in your working directory and add:
 # XENO_CANTO_API_KEY=your-api-key
-# And then run
 
+# Then simply run
 client = XenoCantoClient()
 
 # Build a query
