@@ -34,6 +34,8 @@ The package can be used either as a CLI (Command Line Interface) for quick termi
 
 ### Command Line (CLI)
 
+#### API key setup
+
 **Option 1: Pass it directly (simplest)**
 ```bash
 xcapi --api_key "your-api-key" --grp birds --cnt Spain
