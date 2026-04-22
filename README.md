@@ -1,6 +1,8 @@
-# xcapi: Xeno-canto API 
+# xcapi: Xeno-canto API
 
-A Python package for downloading animal sounds from the [Xeno-canto](https://xeno-canto.org) API.
+A Python package for downloading animal sound recordings from the [Xeno-canto](https://xeno-canto.org) API. Works with birds, grasshoppers, bats, frogs, and more.
+
+No programming knowledge required — xcapi can be used entirely from the command line.
 
 ## Features
 
@@ -10,33 +12,46 @@ A Python package for downloading animal sounds from the [Xeno-canto](https://xen
   - Quality: rating, sound type, sex, life stage, recording method
   - Temporal: year, month, upload date, time of day
   - Metadata: recordist, length, license, equipment (device, microphone), sample rate, temperature, and more
-- **Operator and range support**: Use comparisons like <, >, and ranges (10-20) across supported fields.
-- **Two easy ways to use it**: You can run searches directly from the command line (CLI) without writing any code, or use it inside your Python scripts (API) with a simple, chainable query builder.
+- **Operator and range support**: Use comparisons like `<`, `>`, and ranges (e.g. `10-20`) across supported fields.
+- **Smart incremental downloads**: xcapi remembers what you have already downloaded and only fetches new recordings on repeat runs — no duplicate downloads, no wasted bandwidth.
+- **Preview before downloading**: Use `--metadata_only` to see what a query would return and how many new recordings would be added, without downloading any audio.
+- **Two easy ways to use it**: Run searches directly from the command line (CLI) without writing any code, or use it inside Python scripts with a simple, chainable query builder.
 
 ## Installation
-
-Install the package using pip:
 
 ```bash
 pip install xenocanto-api
 ```
-#### API Key Setup
 
-Starting October 10, 2025 users need a Xeno-canto API key to download recordings from the Xeno-canto API:
+## API Key Setup
+
+Starting October 10, 2025, a Xeno-canto API key is required to download recordings:
+
 1. Register at [https://xeno-canto.org](https://xeno-canto.org)
-2. Verify email
-3. Get key from [https://xeno-canto.org/account](https://xeno-canto.org/account)
+2. Verify your email
+3. Get your key from [https://xeno-canto.org/account](https://xeno-canto.org/account)
 
+## Output Files
 
-## Usage (with examples)
+xcapi creates and manages the following files inside your `--output_dir`:
 
-The package can be used either as a CLI (Command Line Interface) for quick terminal-based commands, or as a Python API for programmatic access through the QueryBuilder, XenoCantoClient, and Downloader classes.
+| File | Description |
+|---|---|
+| `metadata.csv` | Metadata for all downloaded recordings. Grows with each download run. Never overwritten unless `--redownload` is used. |
+| `xcapi_runs.json` | Internal log of downloaded recording IDs, organised by timestamp. Used to skip already-downloaded recordings on future runs. |
+| `metadata_only.csv` | Created by `--metadata_only` runs. Contains only recordings not yet downloaded — a preview of what a real download would add. Overwritten fresh on each `--metadata_only` run. |
+
+Audio files are saved into per-species subfolders inside `output_dir`, e.g. `output_dir/Turdus_merula/`.
+
+> **Note**: `metadata.csv` and `xcapi_runs.json` are only updated by real download runs. Running `--metadata_only` never modifies them.
+
+## Usage
 
 ### Command Line (CLI)
 
 #### API key setup
 
-**Option 1: Use an environmental variable**
+**Option 1: Environment variable (recommended)**
 ```bash
 export XENO_CANTO_API_KEY="your-api-key"
 ```
@@ -46,42 +61,63 @@ export XENO_CANTO_API_KEY="your-api-key"
 xcapi --api_key "your-api-key" --grp birds --cnt Spain
 ```
 
-Show all the available command-line options:
-
+Show all available options:
 ```bash
 xcapi --help
 ```
 
-Download all Grasshopper recordings and metadata from Europe:
+---
 
+#### Downloading recordings
+
+Download all grasshopper recordings from Europe:
 ```bash
 xcapi --grp grasshoppers --area europe --output_dir ./data
 ```
 
-Download high-quality bird songs and metadata from France:
-
+Download high-quality bird songs from France:
 ```bash
 xcapi --grp birds --cnt France --type song --q A --output_dir ./data
 ```
 
-Download grasshopper recordings while filtering by recordist, altitude and year:
-
+Download grasshopper recordings filtered by recordist, altitude, and year:
 ```bash
 xcapi --grp grasshoppers --rec "Baudewijn Odé" --alt 1000-2000 --year ">2023" --output_dir ./data
 ```
 
-Download frog sounds while filtering by sample rate and recording quality:
-
+Download frog sounds filtered by sample rate and quality:
 ```bash
 xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data
 ```
 
-Download just the metadata:
-
+**Re-run the same command** — xcapi will automatically skip recordings already downloaded and only fetch new ones:
 ```bash
-xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data --metadata_only
+xcapi --grp birds --cnt France --type song --q A --output_dir ./data
 ```
 
+---
+
+#### Previewing before downloading
+
+Use `--metadata_only` to check what a query returns and how many recordings you don't have yet, without downloading any audio. Results are saved to `metadata_only.csv`:
+
+```bash
+xcapi --grp birds --cnt France --output_dir ./data --metadata_only
+```
+
+This is useful for estimating download size or checking for new additions before committing to a full download.
+
+---
+
+#### Re-downloading everything from scratch
+
+Use `--redownload` to ignore previous download records and start completely fresh. This re-downloads all recordings and overwrites `metadata.csv` and `xcapi_runs.json`:
+
+```bash
+xcapi --grp birds --cnt France --output_dir ./data --redownload
+```
+
+---
 
 ### Python API
 
@@ -90,42 +126,45 @@ from xcapi.query import QueryBuilder
 from xcapi.client import XenoCantoClient
 from xcapi.downloader import Downloader
 
-
-# Add api key
-
+# Set up client with your API key
 client = XenoCantoClient(api_key="your-api-key")
 
 # Alternatively, use a .env file to avoid passing the key each time:
 # Create a file called .env in your working directory and add:
 # XENO_CANTO_API_KEY=your-api-key
-
-# Then simply run
+# Then simply run:
 client = XenoCantoClient()
 
 # Build a query
 query = QueryBuilder().group("birds").country("Spain").quality("A").build()
 
-# Fetch recordings
+# Fetch recording metadata from Xeno-canto
 recordings = client.search(query)
 
-# Download recordings and metadata
+# Download recordings
+# xcapi will skip recordings already downloaded and only fetch new ones
 downloader = Downloader(output_dir="./data")
 downloader.download_recordings(recordings)
 
-# Download just the metadata
-downloader = Downloader(output_dir="./data")
+# Preview what's new without downloading audio
+# Writes metadata_only.csv with recordings not yet downloaded
 downloader.save_metadata_only(recordings)
 
-
+# Re-download everything from scratch
+downloader.download_recordings(recordings, redownload=True)
 ```
 
-In this way, you can chain multiple filters when building a query. Here is a list of all filters that can be used:
+---
 
- <table>
+### Available query filters
+
+You can chain multiple filters when building a query:
+
+<table>
 <tr>
 <td width="50%" valign="top">
 
-#### **Taxonomic filters**
+#### Taxonomic filters
 - `genus(genus_name)`
 - `species(species_name)`
 - `subspecies(subspecies_name)`
@@ -133,7 +172,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `group(group_name)` – e.g. `"birds"`, `"grasshoppers"`, `"bats"`, `"land mammals"`, `"frogs"`
 - `english_name(name)`
 
-#### **Geographic filters**
+#### Geographic filters
 - `country(country_name)`
 - `location(location_name)`
 - `area(region_name)` – e.g. `"Europe"`, `"Asia"`, `"Africa"`
@@ -142,7 +181,7 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 - `longitude(range_or_operator)` – e.g. `"-10-0"`, `"<-100"`
 - `altitude(range_or_operator)` – e.g. `"100-500"`, `"<1000"`
 
-#### **Quality and type filters**
+#### Quality and type filters
 - `quality(rating)` – one of `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, or operators like `">B"`, `"<C"`
 - `sound_type(type)` – e.g. `"song"`, `"call"`, `"drumming"`
 - `sex(sex)` – e.g. `"male"`, `"female"`
@@ -152,13 +191,13 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 </td>
 <td width="50%" valign="top">
 
-#### **Temporal filters**
+#### Temporal filters
 - `year(year_or_range)` – e.g. `"2020"`, `"2015-2020"`, `">2018"`
 - `month(month_or_range)` – e.g. `"6"`, `"1-3"`
-- `since(days)` – recordings uploaded in the last N days – e.g. `"2"`, `"5"` or since a date – e.g. `"2012-11-09"`.
+- `since(days)` – recordings uploaded in the last N days – e.g. `"2"`, `"5"` or since a date – e.g. `"2012-11-09"`
 - `time_of_day(time_or_range)` – e.g. `"06:00"`, `"06:00-12:00"`
 
-#### **Other and metadata filters**
+#### Other and metadata filters
 - `recordist(name)` – e.g. `"Raziya Qadri"`
 - `length(length_or_range)` – e.g. `"10-20"`, `"<30"`, `">60"`
 - `license(license_type)` – e.g. `"cc-by"`, `"cc0"`
@@ -177,13 +216,5 @@ In this way, you can chain multiple filters when building a query. Here is a lis
 </td>
 </tr>
 </table>
- 
 
-Visit [this page](https://xeno-canto.org/help/search#advanced) to get more detailed information on different search tags.
-
-
-
-
-
-
-
+Visit [this page](https://xeno-canto.org/help/search#advanced) for more detail on search tags.

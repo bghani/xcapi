@@ -32,55 +32,68 @@ Examples:
   
   # Download recent recordings from last 30 days
   xcapi --grp birds --since 30
+
+  # Preview what a download would add without downloading audio
+  xcapi --grp birds --cnt Spain --metadata_only
+
+  # Re-download everything fresh, ignoring previous records
+  xcapi --grp birds --cnt Spain --redownload
   
 Environment Variables:
   XENO_CANTO_API_KEY   Your Xeno-canto API key (required)
         """
     )
-    
+
     parser.add_argument(
         '--api_key',
         help='Xeno-canto API key (or set XENO_CANTO_API_KEY env variable)'
     )
-    
+
     parser.add_argument(
         '--output_dir',
         default='./xc_downloads',
         help='Output directory for downloads (default: ./xc_downloads)'
     )
-    
+
     parser.add_argument(
         '--max_results',
         type=int,
         help='Maximum number of recordings to download'
     )
-    
+
     parser.add_argument(
         '--per_page',
         type=int,
         default=100,
         help='Results per page (50-500, default: 100)'
     )
-    
+
     parser.add_argument(
-        '--skip_existing',
+        '--redownload',
         action='store_true',
-        default=True,
-        help='Skip already downloaded files (default: True)'
+        default=False,
+        help=(
+            'Re-download all recordings and overwrite existing records. '
+            'By default xcapi skips recordings that have already been downloaded but this requires at least the metadata.csv file.'
+        )
     )
-    
+
     parser.add_argument(
         '--verbose', '-v',
         action='store_true',
         help='Print detailed progress information'
     )
-    
+
     parser.add_argument(
         '--metadata_only',
         action='store_true',
-        help='Fetch metadata only without downloading audio files'
+        help=(
+            'Save metadata only without downloading audio files. '
+            'Writes metadata_only.csv containing recordings not yet downloaded, '
+            'so you can preview what a real download would add. Note that the metadata.csv stays intact and only gets updated when you actually download recordings.'
+        )
     )
-    
+
     tax_group = parser.add_argument_group('Taxonomic filters')
     tax_group.add_argument('--gen', '--genus', help='Genus name (e.g., Corvus)')
     tax_group.add_argument('--sp', '--species', help='Species name (e.g., "Pica pica"). To perform a search for a species name that has multiple words, you must enclose the words in double quotes.')
@@ -88,7 +101,6 @@ Environment Variables:
     tax_group.add_argument('--en', '--english', help='English common name (e.g., "Common blackbird"). To perform a search for a common name that has multiple words, you must enclose the words in double quotes.')
     tax_group.add_argument('--fam', '--family', help='Family name. To perform a search for a family name that has multiple words, you must enclose the words in double quotes.')
     tax_group.add_argument('--grp', '--group', help='Taxonomic group (e.g., birds, grasshoppers, bats, frogs, land mammals, soundscape). To perform a search for a taxonomic group that has multiple words, you must enclose the words in double quotes (e.g., --grp "land mammals").')
-    
 
     geo_group = parser.add_argument_group('Geographic filters')
     geo_group.add_argument('--cnt', '--country', help='Country name (e.g., Germany). To perform a search for a country that has multiple words, you must enclose the words in double quotes (e.g., --cnt "Costa Rica")')
@@ -103,7 +115,7 @@ Environment Variables:
     quality_group.add_argument(
         '--q', '--quality',
         help='Recording quality rating (A–E). Supports operators like A, ">B" or "<C". '
-            'Quotes are required in most shells for < or >, e.g. --q ">B".'
+             'Quotes are required in most shells for < or >, e.g. --q ">B".'
     )
     quality_group.add_argument('--type', help='Sound type (e.g., song, call, alarm, etc.)')
     quality_group.add_argument('--sex', help='Sex (male, female)')
@@ -113,22 +125,20 @@ Environment Variables:
     time_group = parser.add_argument_group('Time filters')
     time_group.add_argument('--year', help='Year or range (e.g., 2020, 2015-2020). Quotes are required in most shells for < or > (e.g., --year ">2020").')
     time_group.add_argument('--month', help='Month or range (e.g., 6, 1-7). Quotes are required in most shells for < or > (e.g., --month "<5")')
-    time_group.add_argument('--since', help='Recordings uploaded since YYYY-MM-DD (e.g., 2012-11-09) or wintin last N days (e.g., 2, 3)')
+    time_group.add_argument('--since', help='Recordings uploaded since YYYY-MM-DD (e.g., 2012-11-09) or within last N days (e.g., 2, 3)')
     time_group.add_argument('--time', help='Time of day or range (e.g., 06:00, 06:00-12:00)')
 
     other_group = parser.add_argument_group('Other filters')
-    other_group.add_argument('--rec', '--recordist', help='Recordist name (e.g., "Raziya"). To perform a search for a location that has multiple words, you must enclose the words in double quotes (e.g., "Raziya Qadri") ')
+    other_group.add_argument('--rec', '--recordist', help='Recordist name (e.g., "Raziya"). To perform a search for a location that has multiple words, you must enclose the words in double quotes (e.g., "Raziya Qadri")')
     other_group.add_argument(
         '--len', '--length',
         help='Recording length in seconds (e.g., 10, 20, 10-20, "<30", ">60"). '
-            'Ranges and comparison operators are supported. Quotes are required in most shells for < or >.'
+             'Ranges and comparison operators are supported. Quotes are required in most shells for < or >.'
     )
     other_group.add_argument('--lic', '--license', help='License type (e.g., CC-BY, CC0)')
     other_group.add_argument('--also', help='Background species name. To perform a search for a background species name that has multiple words, you must enclose the words in double quotes.')
-    other_group.add_argument('--seen', choices=['yes', 'no'],
-                            help='Was the animal seen? (yes/no)')
-    other_group.add_argument('--playback', choices=['yes', 'no'],
-                            help='Was playback used? (yes/no)')
+    other_group.add_argument('--seen', choices=['yes', 'no'], help='Was the animal seen? (yes/no)')
+    other_group.add_argument('--playback', choices=['yes', 'no'], help='Was playback used? (yes/no)')
 
     metadata_group = parser.add_argument_group('Recording metadata filters')
     metadata_group.add_argument(
@@ -144,28 +154,28 @@ Environment Variables:
         '--auto', '--automatic', choices=['yes', 'no', 'unknown'],
         help='Automatic (non-supervised) recording'
     )
-    metadata_group.add_argument('--dvc', '--device', help='Recording device (e.g., "Zoom F3").  To perform a search for a recording device that has multiple words, you must enclose the words in double quotes.')
+    metadata_group.add_argument('--dvc', '--device', help='Recording device (e.g., "Zoom F3"). To perform a search for a recording device that has multiple words, you must enclose the words in double quotes.')
     metadata_group.add_argument('--mic', '--microphone', help='Microphone model. To perform a search for a microphone model that has multiple words, you must enclose the words in double quotes.')
     metadata_group.add_argument('--smp', '--sample_rate',
                                 help='Sample rate or a range in Hz (e.g., 44100, 44100-100000, ">44100"). Quotes are required in most shells for < or >.')
     metadata_group.add_argument('--rmk', '--remarks', help='Search in remarks field text')
-        
+
     args = parser.parse_args()
-    
+
     try:
         query = build_query_from_args(args)
-        
+
         if not query:
             parser.error("No search filters specified. Use --help for available options.")
-        
+
         if args.verbose:
             print(f"Query: {query}\n")
-        
+
         api_key = args.api_key or os.getenv('XENO_CANTO_API_KEY')
         if not api_key:
             print("ERROR: API key required. Set XENO_CANTO_API_KEY environment variable or use --api_key", file=sys.stderr)
             sys.exit(1)
-        
+
         with XenoCantoClient(api_key=api_key) as client:
             print("Searching for recordings...")
             recordings = client.search(
@@ -174,31 +184,34 @@ Environment Variables:
                 max_results=args.max_results,
                 verbose=args.verbose
             )
-            
+
             if not recordings:
                 print("No recordings found matching the query.")
                 return
-            
+
             print(f"\nFound {len(recordings)} recordings.")
-            
+
             downloader = Downloader(output_dir=args.output_dir)
-            
+
             if args.metadata_only:
-                print(f"Saving metadata to: {downloader.output_dir}\n")
+                print(f"Saving metadata delta to: {downloader.output_dir}\n")
                 downloader.save_metadata_only(recordings, verbose=True)
-                print("\n✓ Metadata saved! Use without --metadata_only to download audio files.")
+                print("\n✓ Done! Run without --metadata_only to download the audio files.")
                 return
-            
+
             print(f"Downloading to: {downloader.output_dir}\n")
-            
+
             stats = downloader.download_recordings(
                 recordings=recordings,
                 verbose=args.verbose,
-                skip_existing=args.skip_existing
+                redownload=args.redownload
             )
-            
+
             print("\n✓ Download complete!")
-            
+            print(f"  Downloaded: {stats['downloaded']}")
+            print(f"  Skipped:    {stats['skipped']}")
+            print(f"  Failed:     {stats['failed']}")
+
     except KeyboardInterrupt:
         print("\n\nDownload interrupted by user.", file=sys.stderr)
         sys.exit(1)
@@ -213,15 +226,15 @@ Environment Variables:
 def build_query_from_args(args) -> str:
     """
     Build a query string from command-line arguments.
-    
+
     Args:
         args: Parsed command-line arguments
-    
+
     Returns:
         Query string for the Xeno-canto API
     """
     builder = QueryBuilder()
-    
+
     if args.gen:
         builder.genus(args.gen)
     if args.sp:
@@ -234,7 +247,7 @@ def build_query_from_args(args) -> str:
         builder.group(args.grp)
     if args.en:
         builder.english_name(args.en)
-    
+
     if args.cnt:
         builder.country(args.cnt)
     if args.loc:
@@ -255,7 +268,7 @@ def build_query_from_args(args) -> str:
         builder.longitude(args.lon)
     if args.alt:
         builder.altitude(args.alt)
-    
+
     if args.q:
         builder.quality(args.q)
     if args.type:
@@ -266,7 +279,7 @@ def build_query_from_args(args) -> str:
         builder.life_stage(args.stage)
     if args.method:
         builder.method(args.method)
-    
+
     if args.year:
         builder.year(args.year)
     if args.month:
@@ -275,7 +288,7 @@ def build_query_from_args(args) -> str:
         builder.since(args.since)
     if args.time:
         builder.time_of_day(args.time)
-    
+
     if args.rec:
         builder.recordist(args.rec)
     if getattr(args, 'len', None):
@@ -288,7 +301,7 @@ def build_query_from_args(args) -> str:
         builder.animal_seen(args.seen == 'yes')
     if args.playback:
         builder.playback_used(args.playback == 'yes')
-    
+
     if args.nr:
         builder.xc_number(args.nr)
     if args.temp:
@@ -305,7 +318,7 @@ def build_query_from_args(args) -> str:
         builder.sample_rate(args.smp)
     if args.rmk:
         builder.remarks(args.rmk)
-    
+
     return builder.build()
 
 
