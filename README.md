@@ -38,7 +38,7 @@ xcapi creates and manages the following files inside your `--output_dir`:
 | File | Description |
 |---|---|
 | `metadata.csv` | Metadata for all downloaded recordings. Grows with each download run. Never overwritten unless `--redownload` is used. |
-| `xcapi_runs.json` | Internal log of downloaded recording IDs, organised by timestamp. Used to skip already-downloaded recordings on future runs. |
+| `xcapi_runs.json` | Internal log of downloaded recording IDs, organised by timestamp. Used to skip already-downloaded recordings on future runs. As IDs are stored by download date, this file also serves as a download history that can be useful for tracking dataset growth over time or for reproducibility purposes. |
 | `metadata_only.csv` | Created by `--metadata_only` runs. Contains only recordings not yet downloaded — a preview of what a real download would add. Overwritten fresh on each `--metadata_only` run. |
 
 Audio files are saved into per-species subfolders inside `output_dir`, e.g. `output_dir/Turdus_merula/`.
@@ -90,9 +90,9 @@ Download frog sounds filtered by sample rate and quality:
 xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data
 ```
 
-**Re-run the same command** — xcapi will automatically skip recordings already downloaded and only fetch new ones:
+**Re-run the same command** — xcapi will automatically skip recordings already downloaded and only fetch new ones. Note that skipping only works when you point to the same `--output_dir` as a previous download, and that directory contains either `xcapi_runs.json` or `metadata.csv`:
 ```bash
-xcapi --grp birds --cnt France --type song --q A --output_dir ./data
+xcapi --grp frogs --smp ">44100" --q "<C" --output_dir ./data
 ```
 
 ---
