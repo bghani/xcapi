@@ -209,7 +209,7 @@ You can chain multiple filters when building a query:
 #### Other and metadata filters
 - `recordist(name)` – e.g. `"Raziya Qadri"`
 - `length(length_or_range)` – e.g. `"10-20"`, `"<30"`, `">60"`
-- `license(license_type)` – e.g. `"cc-by"`, `"cc0"`
+- `license(license_type)` – e.g. `"by"` for CC BY or `"pd"` for public domain
 - `also(species)` – background species
 - `animal_seen(True/False)`
 - `playback_used(True/False)`
