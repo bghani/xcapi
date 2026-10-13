@@ -25,6 +25,8 @@ class Downloader:
         >>> downloader.download_recordings(recordings, verbose=True)
     """
 
+    SAVE_EVERY = 25  # write metadata.csv and xcapi_runs.json every N downloads
+
     def __init__(self, output_dir: str = "./xc_downloads"):
         """
         Initialize the downloader.
@@ -60,11 +62,10 @@ class Downloader:
         Returns:
             Dictionary with download statistics (downloaded, skipped, failed)
         """
-        stats = {'downloaded': 0, 'skipped': 0, 'failed': 0}
+        stats = {'downloaded': 0, 'skipped': 0, 'restricted': 0, 'failed': 0}
 
         if not recordings:
-            if verbose:
-                print("No recordings to download.")
+            print("No recordings to download.")
             return stats
 
         # Determine which IDs to skip
@@ -72,43 +73,64 @@ class Downloader:
         if not redownload:
             existing_ids = self._load_existing_ids(verbose=verbose, allow_bootstrap=True)
 
-        new_recordings = []
+        run_key = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        pending = []                # downloaded but not yet written to disk
+        first_flush = [redownload]  # only the first write may overwrite files
 
-        for i, recording in enumerate(recordings, 1):
-            rec_id = str(recording.get('id', ''))
-            species_name = f"{recording.get('gen', 'Unknown')} {recording.get('sp', 'unknown')}"
+        def flush():
+            if pending:
+                self._append_metadata(pending, redownload=first_flush[0], announce=False)
+                self._update_runs(pending, redownload=first_flush[0], run_key=run_key)
+                first_flush[0] = False
+                pending.clear()
 
-            if rec_id in existing_ids:
-                stats['skipped'] += 1
+        try:
+            for i, recording in enumerate(recordings, 1):
+                rec_id = str(recording.get('id', ''))
+                species_name = f"{recording.get('gen', 'Unknown')} {recording.get('sp', 'unknown')}"
+
+                if rec_id in existing_ids:
+                    stats['skipped'] += 1
+                    if verbose:
+                        print(f"[{i}/{len(recordings)}] Skipping {species_name} (ID: {rec_id}) — already downloaded")
+                    continue
+
+                if self._is_restricted(recording):
+                    stats['restricted'] += 1
+                    if verbose:
+                        print(f"[{i}/{len(recordings)}] Skipping {species_name} (ID: {rec_id}) — restricted species, audio not available via the API")
+                    continue
+
                 if verbose:
-                    print(f"[{i}/{len(recordings)}] Skipping {species_name} (ID: {rec_id}) — already downloaded")
-                continue
+                    print(f"[{i}/{len(recordings)}] Downloading {species_name} (ID: {rec_id})")
 
-            if verbose:
-                print(f"[{i}/{len(recordings)}] Downloading {species_name} (ID: {rec_id})")
+                try:
+                    self._download_recording(recording, verbose)
+                    stats['downloaded'] += 1
+                    pending.append(recording)
+                except Exception as e:
+                    stats['failed'] += 1
+                    if verbose:
+                        print(f"  ERROR: {str(e)}")
 
-            try:
-                self._download_recording(recording, verbose)
-                stats['downloaded'] += 1
-                new_recordings.append(recording)
-            except Exception as e:
-                stats['failed'] += 1
-                if verbose:
-                    print(f"  ERROR: {str(e)}")
+                if len(pending) >= self.SAVE_EVERY:
+                    flush()
+        finally:
+            # Runs on normal completion, errors and Ctrl-C alike
+            flush()
+            if redownload and first_flush[0]:
+                # redownload requested but nothing came back — still reset files
+                self._append_metadata([], redownload=True, announce=False)
+                self._update_runs([], redownload=True, run_key=run_key)
 
-        # Persist results
-        if new_recordings:
-            self._append_metadata(new_recordings, redownload=redownload)
-            self._update_runs(new_recordings, redownload=redownload)
-        elif redownload and not new_recordings:
-            # redownload requested but nothing came back — still reset files
-            self._append_metadata([], redownload=True)
-            self._update_runs([], redownload=True)
+        if stats['downloaded']:
+            print(f"Metadata saved to {self.output_dir / 'metadata.csv'}")
 
         if verbose:
             print(f"\nDownload complete:")
             print(f"  Downloaded: {stats['downloaded']}")
             print(f"  Skipped:    {stats['skipped']}")
+            print(f"  Restricted: {stats['restricted']}")
             print(f"  Failed:     {stats['failed']}")
 
         return stats
@@ -273,28 +295,35 @@ class Downloader:
             print("No previous download records found — downloading everything")
         return set()
 
-    def _update_runs(self, recordings: List[Dict], redownload: bool = False):
+    def _update_runs(self, recordings: List[Dict], redownload: bool = False, run_key: Optional[str] = None):
         """
         Update xcapi_runs.json with newly downloaded recording IDs.
 
         Args:
             recordings: Newly downloaded recordings
             redownload: If True, overwrite runs file with just this run
+            run_key: Identifier of the current run; repeated calls with the
+                     same key extend that run's ID list
         """
         runs_path = self.output_dir / 'xcapi_runs.json'
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
+        run_key = run_key or datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         new_ids = [str(r['id']) for r in recordings]
 
-        if redownload:
-            runs = {timestamp: new_ids}
+        if redownload or not runs_path.exists():
+            runs = {}
         else:
-            if runs_path.exists():
-                runs = json.loads(runs_path.read_text(encoding='utf-8'))
-            else:
-                runs = {}
-            runs[timestamp] = new_ids
+            runs = json.loads(runs_path.read_text(encoding='utf-8'))
+        runs.setdefault(run_key, []).extend(new_ids)
 
-        runs_path.write_text(json.dumps(runs, indent=2), encoding='utf-8')
+        tmp_path = runs_path.with_suffix('.json.tmp')
+        tmp_path.write_text(json.dumps(runs, indent=2), encoding='utf-8')
+        tmp_path.replace(runs_path)  # atomic, so an interrupt can't leave a half-written file
+
+    @staticmethod
+    def _is_restricted(recording: Dict) -> bool:
+        """True if Xeno-canto redacted the audio file (restricted species)."""
+        redacted = (recording.get('_meta') or {}).get('redacted_fields') or {}
+        return 'file' in redacted or recording.get('file') in (None, 'restricted_species')
 
     # ------------------------------------------------------------------
     # CSV helpers
@@ -333,7 +362,7 @@ class Downloader:
                     row['also'] = recording.get('also', '')
                 writer.writerow(row)
 
-    def _append_metadata(self, recordings: List[Dict], redownload: bool = False):
+    def _append_metadata(self, recordings: List[Dict], redownload: bool = False, announce: bool = True):
         """
         Append new recording metadata to metadata.csv, or overwrite if redownload.
 
@@ -344,7 +373,7 @@ class Downloader:
         metadata_file = self.output_dir / 'metadata.csv'
         mode = 'w' if redownload else 'a'
         self._write_csv(metadata_file, recordings, mode=mode)
-        if recordings:
+        if recordings and announce:
             print(f"Metadata saved to {metadata_file}")
 
     # ------------------------------------------------------------------

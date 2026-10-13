@@ -5,8 +5,10 @@ Handles HTTP requests, pagination, error handling, and response parsing.
 """
 
 import os
+import warnings
 import time
 from typing import Dict, List, Optional
+import re
 import requests
 from dotenv import load_dotenv
 
@@ -110,6 +112,11 @@ class XenoCantoClient:
             
             time.sleep(0.1)
         
+        if not all_recordings:
+            warnings.warn(
+                f"No recordings matched this query: {query}",
+                stacklevel=2,
+            )
         return all_recordings
     
     def _fetch_page(self, query: str, page: int, per_page: int) -> Dict:
@@ -137,23 +144,37 @@ class XenoCantoClient:
         
         try:
             response = self.session.get(self.API_ENDPOINT, params=params, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            if 'error' in data:
-                error_info = data['error']
-                raise RuntimeError(
-                    f"API error [{error_info.get('code', 'unknown')}]: "
-                    f"{error_info.get('message', 'Unknown error')}"
-                )
-            
-            return data
-            
         except requests.exceptions.Timeout:
-            raise RuntimeError("Request timed out. Please try again.")
+            raise RuntimeError("Request timed out. Please try again.") from None
         except requests.exceptions.RequestException as e:
-            raise RuntimeError(f"Request failed: {str(e)}")
+            raise RuntimeError(f"Request failed: {self._redact(str(e))}") from None
+
+        # Xeno-canto returns a JSON error body with 400/500 responses,
+        # so read it before checking the status code.
+        try:
+            data = response.json()
+        except ValueError:
+            data = {}
+
+        if isinstance(data, dict) and 'error' in data:
+            error_info = data['error'] if isinstance(data['error'], dict) else {'message': str(data['error'])}
+            raise RuntimeError(
+                f"API error [{error_info.get('code', 'unknown')}]: "
+                f"{error_info.get('message', 'Unknown error')} (query: {query})"
+            )
+
+        if not response.ok:
+            raise RuntimeError(
+                f"Request failed with HTTP {response.status_code} for query: {query}"
+            )
+
+        return data
+
+    def _redact(self, text: str) -> str:
+        """Remove the API key from text that may contain a request URL."""
+        if self.api_key:
+            text = text.replace(self.api_key, '***')
+        return re.sub(r'(key=)[^&\s]+', r'\1***', text)
     
     def get_metadata(self, query: str, verbose: bool = False) -> Dict:
         """

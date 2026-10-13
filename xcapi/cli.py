@@ -22,7 +22,7 @@ def main():
         epilog="""
 Examples:
   # Download Orthoptera from Europe
-  xcapi --grp Orthoptera --area europe --output_dir ./data
+  xcapi --grp grasshoppers --area europe --output_dir ./data
   
   # Download high-quality bird songs from Spain
   xcapi --grp birds --cnt Spain --type song --q A
@@ -105,11 +105,10 @@ Environment Variables:
     geo_group = parser.add_argument_group('Geographic filters')
     geo_group.add_argument('--cnt', '--country', help='Country name (e.g., Germany). To perform a search for a country that has multiple words, you must enclose the words in double quotes (e.g., --cnt "Costa Rica")')
     geo_group.add_argument('--loc', '--location', help='Locality or site name (e.g., tambopata). To perform a search for a location that has multiple words, you must enclose the words in double quotes (e.g., --loc "New Delhi")')
-    geo_group.add_argument('--area', help='Continent or region (e.g., Europe, Asia, Africa)')
+    geo_group.add_argument('--area', help='World area: africa, america, asia, australia or europe')
     geo_group.add_argument('--box', help='Bounding box as lat_min,lon_min,lat_max,lon_max')
-    geo_group.add_argument('--lat', '--latitude', help='Latitude or range (e.g., 40-45, ">50"). Quotes are required in most shells for < or >.')
-    geo_group.add_argument('--lon', '--longitude', help='Longitude or range (e.g., -10-0, "<-100"). Quotes are required in most shells for < or >.')
-    geo_group.add_argument('--alt', '--altitude', help='Altitude in meters (e.g., 100-500, "<1000"). Quotes are required in most shells for < or >.')
+    geo_group.add_argument('--lat', '--latitude', help='Latitude (e.g., 52.1, matches within 1 degree), ">66.5", or a range 40-45 (sent as a bounding box). Quotes are required in most shells for < or >.')
+    geo_group.add_argument('--lon', '--longitude', help='Longitude (e.g., 4.9, matches within 1 degree), "<-100", or a range -10-0 (sent as a bounding box). Quotes are required in most shells for < or >.')
 
     quality_group = parser.add_argument_group('Quality and type filters')
     quality_group.add_argument(
@@ -124,9 +123,8 @@ Environment Variables:
 
     time_group = parser.add_argument_group('Time filters')
     time_group.add_argument('--year', help='Year or range (e.g., 2020, 2015-2020). Quotes are required in most shells for < or > (e.g., --year ">2020").')
-    time_group.add_argument('--month', help='Month or range (e.g., 6, 1-7). Quotes are required in most shells for < or > (e.g., --month "<5")')
+    time_group.add_argument('--month', help='Month or range (e.g., 6, 1-3). Quotes are required in most shells for < or > (e.g., --month "<5")')
     time_group.add_argument('--since', help='Recordings uploaded since YYYY-MM-DD (e.g., 2012-11-09) or within last N days (e.g., 2, 3)')
-    time_group.add_argument('--time', help='Time of day or range (e.g., 06:00, 06:00-12:00)')
 
     other_group = parser.add_argument_group('Other filters')
     other_group.add_argument('--rec', '--recordist', help='Recordist name (e.g., "Raziya"). To perform a search for a location that has multiple words, you must enclose the words in double quotes (e.g., "Raziya Qadri")')
@@ -139,16 +137,16 @@ Environment Variables:
     other_group.add_argument('--also', help='Background species name. To perform a search for a background species name that has multiple words, you must enclose the words in double quotes.')
     other_group.add_argument('--seen', choices=['yes', 'no'], help='Was the animal seen? (yes/no)')
     other_group.add_argument('--playback', choices=['yes', 'no'], help='Was playback used? (yes/no)')
-    other_group.add_argument('--id_quest', '--id_questioned', choices=['yes', 'no'], help='...')
+    other_group.add_argument('--id_quest', '--id_questioned', choices=['yes', 'no'], help='yes: only unidentified or questioned recordings; no: only identified recordings')
 
     metadata_group = parser.add_argument_group('Recording metadata filters')
     metadata_group.add_argument(
         '--nr', '--recording_number',
-        help='XC recording number or range (e.g. 76967, 88888-88890, ">76960"). Quotes are required in most shells for < or >.'
+        help='XC recording number or range (e.g. 76967, 88888-88890). Xeno-canto does not support < or > for this filter.'
     )
     metadata_group.add_argument(
         '--temp', '--temperature',
-        help='Temperature in °C (e.g., 20-30, "<10", ">35"). Quotes are required in most shells for < or >.'
+        help='Temperature in °C, grasshoppers only (e.g., 25, 20-30, "<10", ">20"). Quotes are required in most shells for < or >.'
     )
     metadata_group.add_argument('--regnr', help='Specimen registration number')
     metadata_group.add_argument(
@@ -158,7 +156,7 @@ Environment Variables:
     metadata_group.add_argument('--dvc', '--device', help='Recording device (e.g., "Zoom F3"). To perform a search for a recording device that has multiple words, you must enclose the words in double quotes.')
     metadata_group.add_argument('--mic', '--microphone', help='Microphone model. To perform a search for a microphone model that has multiple words, you must enclose the words in double quotes.')
     metadata_group.add_argument('--smp', '--sample_rate',
-                                help='Sample rate or a range in Hz (e.g., 44100, 44100-100000, ">44100"). Quotes are required in most shells for < or >.')
+                                help='Sample rate or a range in Hz (e.g., 44100, 44100-96000, ">48000"). Quotes are required in most shells for < or >.')
     metadata_group.add_argument('--rmk', '--remarks', help='Search in remarks field text')
 
     args = parser.parse_args()
@@ -267,8 +265,6 @@ def build_query_from_args(args) -> str:
         builder.latitude(args.lat)
     if args.lon:
         builder.longitude(args.lon)
-    if args.alt:
-        builder.altitude(args.alt)
 
     if args.q:
         builder.quality(args.q)
@@ -287,8 +283,6 @@ def build_query_from_args(args) -> str:
         builder.month(args.month)
     if args.since:
         builder.since(args.since)
-    if args.time:
-        builder.time_of_day(args.time)
 
     if args.rec:
         builder.recordist(args.rec)

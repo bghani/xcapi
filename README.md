@@ -85,9 +85,9 @@ Download high-quality bird songs from France:
 xcapi --grp birds --cnt France --type song --q A --output_dir ./data
 ```
 
-Download grasshopper recordings filtered by recordist, altitude, and year:
+Download grasshopper recordings filtered by recordist, temperature, and year:
 ```bash
-xcapi --grp grasshoppers --rec "Baudewijn Odé" --alt 1000-2000 --year ">2023" --output_dir ./data
+xcapi --grp grasshoppers --rec "Baudewijn Odé" --temp 20-30 --year ">2023" --output_dir ./data
 ```
 
 Download frog sounds filtered by sample rate and quality:
@@ -184,11 +184,11 @@ You can chain multiple filters when building a query:
 #### Geographic filters
 - `country(country_name)`
 - `location(location_name)`
-- `area(region_name)` – e.g. `"Europe"`, `"Asia"`, `"Africa"`
+- `area(region_name)` – one of `"africa"`, `"america"`, `"asia"`, `"australia"`, `"europe"`
 - `bounding_box(lat_min, lon_min, lat_max, lon_max)`
-- `latitude(range_or_operator)` – e.g. `"40-45"`, `">50"`
-- `longitude(range_or_operator)` – e.g. `"-10-0"`, `"<-100"`
-- `altitude(range_or_operator)` – e.g. `"100-500"`, `"<1000"`
+- `latitude(value)` – e.g. `"52.1"` (within 1°), `">66.5"`, or a range `"40-45"`
+- `longitude(value)` – e.g. `"4.9"` (within 1°), `"<-100"`, or a range `"-10-0"`
+  - Latitude/longitude ranges are sent as a bounding box. Note that Xeno-canto excludes restricted species from bounding-box results.
 
 #### Quality and type filters
 - `quality(rating)` – one of `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, or operators like `">B"`, `"<C"`
@@ -202,20 +202,19 @@ You can chain multiple filters when building a query:
 
 #### Temporal filters
 - `year(year_or_range)` – e.g. `"2020"`, `"2015-2020"`, `">2018"`
-- `month(month_or_range)` – e.g. `"6"`, `"1-3"`
-- `since(days)` – recordings uploaded in the last N days – e.g. `"2"`, `"5"` or since a date – e.g. `"2012-11-09"`
-- `time_of_day(time_or_range)` – e.g. `"06:00"`, `"06:00-12:00"`
+- `month(month_or_range)` – e.g. `"6"`, `">8"`, `"1-3"`
+- `since(days_or_date)` – recordings uploaded in the last N days – e.g. `"2"`, `"5"` or since a date – e.g. `"2012-11-09"`
 
 #### Other and metadata filters
 - `recordist(name)` – e.g. `"Raziya Qadri"`
 - `length(length_or_range)` – e.g. `"10-20"`, `"<30"`, `">60"`
-- `license(license_type)` – e.g. `"by"` for CC BY or `"pd"` for public domain
+- `license(license_type)` – Xeno-canto license code: `"BY"`, `"BY-NC"`, `"BY-SA"`, `"BY-NC-SA"`, `"BY-ND"`, `"BY-NC-ND"`, or `"PD"` for public domain
 - `also(species)` – background species
 - `animal_seen(True/False)`
 - `playback_used(True/False)`
 - `id_questioned(True/False)`
-- `xc_number(value)` – e.g. `"76967"`, `"88888-88890"`, `">76967"`
-- `temperature(value)` – e.g. `"20-30"`, `"<10"`
+- `xc_number(value)` – an exact number or a range, e.g. `"76967"`, `"88888-88890"` (`<` and `>` are not supported by Xeno-canto for this field)
+- `temperature(value)` – grasshoppers only, e.g. `"25"`, `"20-30"`, `"<10"`
 - `registration_number(value)`
 - `automatic_recording("yes"|"no"|"unknown")`
 - `device(device_name)`
@@ -228,3 +227,9 @@ You can chain multiple filters when building a query:
 </table>
 
 Visit [this page](https://xeno-canto.org/help/search#advanced) for more detail on search tags.
+
+> **Filtering on other fields**: Xeno-canto has no search tag for altitude, upload date ranges, or time of day, but these values are included in `metadata.csv`. Filter them after the search, e.g. with pandas: `meta[(meta["alt"] >= 100) & (meta["alt"] <= 500)]`.
+
+### Opening the CSV files in Excel
+
+If your Excel uses a comma as the decimal separator (e.g. Italian, German, Dutch or French settings), double-clicking a CSV will misread coordinates such as `45.1586` as `451586`. The file itself is correct. Import it via **Data → From Text/CSV** and set the file origin/locale to *English (United States)*, or load it with `pandas.read_csv`.

@@ -8,6 +8,10 @@ using all supported Xeno-canto API search tags.
 from typing import List, Optional
 import re
 
+_INT_RANGE = re.compile(r"^(\d+)-(\d+)$")
+_FLOAT_RANGE = re.compile(r"^(-?\d+(?:\.\d+)?)-(-?\d+(?:\.\d+)?)$")
+_XC_NUMBER = re.compile(r"^\d+(-\d+)?$")
+
 
 class QueryBuilder:
     """
@@ -25,6 +29,9 @@ class QueryBuilder:
     def __init__(self):
         """Initialize an empty query builder."""
         self._tags = []
+        self._lat_range = None
+        self._lon_range = None
+        self._has_box = False
     
     def _add_tag(self, tag: str, value: str, quote: bool = False) -> 'QueryBuilder':
         """
@@ -54,6 +61,23 @@ class QueryBuilder:
         self._tags.append(f"{tag}:{value}")
         return self
     
+    def _bounded_range(self, tag: str, value) -> 'QueryBuilder':
+        """
+        Xeno-canto ignores 'a-b' ranges for some tags and silently uses only
+        the first value. Send such ranges as tag:">a-1" tag:"<b+1" instead
+        (repeated tags are combined with AND by the API).
+        """
+        value = str(value).strip()
+        m = _INT_RANGE.match(value)
+        if m:
+            lo, hi = int(m.group(1)), int(m.group(2))
+            if lo > hi:
+                raise ValueError(f"Invalid {tag} range {value!r}: start is greater than end")
+            self._tags.append(f'{tag}:">{lo - 1}"')
+            self._tags.append(f'{tag}:"<{hi + 1}"')
+            return self
+        return self._add_tag(tag, value)
+
     def genus(self, genus: str) -> 'QueryBuilder':
         """Filter by genus name."""
         return self._add_tag('gen', genus)
@@ -100,7 +124,7 @@ class QueryBuilder:
         Filter by continent or region.
         
         Args:
-            area: e.g., 'africa', 'asia', 'europe', 'north america', etc.
+            area: one of 'africa', 'america', 'asia', 'australia', 'europe'
         """
         return self._add_tag('area', area, quote=True)
     
@@ -114,6 +138,7 @@ class QueryBuilder:
             lat_max: Maximum latitude
             lon_max: Maximum longitude
         """
+        self._has_box = True
         box_value = f"{lat_min},{lon_min},{lat_max},{lon_max}"
         return self._add_tag('box', box_value)
     
@@ -177,36 +202,28 @@ class QueryBuilder:
         Filter by recording year.
         
         Args:
-            year: e.g., '2020', '2015-2020', '>2018'
+            year: e.g., '2020', '>2018', '<2000', or a range '2015-2020'
         """
-        return self._add_tag('year', year)
+        return self._bounded_range('year', year)
     
     def month(self, month: str) -> 'QueryBuilder':
         """
         Filter by recording month.
         
         Args:
-            month: e.g., '1', '6', '1-3' (1=January, 12=December)
+            month: e.g., '6', '>8', '<4', or a range '1-3' (1=January, 12=December)
         """
-        return self._add_tag('month', month)
+        return self._bounded_range('month', month)
     
     def since(self, days: int) -> 'QueryBuilder':
-        """
-        Filter by recordings uploaded in the last N days.
-        
-        Args:
-            days: Number of days to look back
-        """
-        return self._add_tag('since', str(days))
-    
-    def uploaded(self, uploaded: str) -> 'QueryBuilder':
         """
         Filter by upload date.
         
         Args:
-            uploaded: e.g., '2024', '2020-2024', '>2022'
+            days: Number of days to look back (e.g. 3), or a date
+                  'YYYY-MM-DD' to get recordings uploaded since that date
         """
-        return self._add_tag('uploaded', uploaded)
+        return self._add_tag('since', str(days))
     
     def license(self, license_type: str) -> 'QueryBuilder':
         """
@@ -237,31 +254,18 @@ class QueryBuilder:
         value = 'yes' if used else 'no'
         return self._add_tag('playback', value)
     
-    def time_of_day(self, time: str) -> 'QueryBuilder':
-        """
-        Filter by time of day.
-        
-        Args:
-            time: Time in format 'HH:MM' or range like '06:00-12:00'
-        """
-        return self._add_tag('time', time, quote=True)
-    
-    def altitude(self, altitude: str) -> 'QueryBuilder':
-        """
-        Filter by altitude in meters.
-        
-        Args:
-            altitude: e.g., '100-500', '<1000', '>2000'
-        """
-        return self._add_tag('alt', altitude, quote=True)
-    
     def latitude(self, latitude: str) -> 'QueryBuilder':
         """
         Filter by latitude.
         
         Args:
-            latitude: e.g., '40-45', '>50'
+            latitude: e.g., '52.1' (matches within 1 degree), '>66.5',
+                      or a range '40-45' (sent as a bounding box)
         """
+        m = _FLOAT_RANGE.match(str(latitude).strip())
+        if m:
+            self._lat_range = (m.group(1), m.group(2))
+            return self
         return self._add_tag('lat', latitude, quote=True)
     
     def longitude(self, longitude: str) -> 'QueryBuilder':
@@ -269,8 +273,13 @@ class QueryBuilder:
         Filter by longitude.
         
         Args:
-            longitude: e.g., '-10-0', '<-100'
+            longitude: e.g., '4.9' (matches within 1 degree), '<-100',
+                       or a range '-10-0' (sent as a bounding box)
         """
+        m = _FLOAT_RANGE.match(str(longitude).strip())
+        if m:
+            self._lon_range = (m.group(1), m.group(2))
+            return self
         return self._add_tag('lon', longitude, quote=True)
         
     
@@ -279,18 +288,25 @@ class QueryBuilder:
         Filter by xeno-canto catalogue number.
         
         Args:
-            number: e.g., '12345', '>100000'
+            number: an exact number ('76967') or a range ('88888-88890').
+                    Xeno-canto does not support < or > for this tag.
         """
+        number = str(number).strip()
+        if not _XC_NUMBER.match(number):
+            raise ValueError(
+                f"xc_number must be an exact number or a range like '1-799999', got {number!r}. "
+                "Xeno-canto does not support < or > for nr."
+            )
         return self._add_tag('nr', number)
     
     def temperature(self, temp: str) -> 'QueryBuilder':
         """
-        Filter by temperature during recording.
+        Filter by temperature during recording (grasshoppers only).
         
         Args:
-            temp: e.g., '20-30', '<10', '>25'
+            temp: e.g., '25' (25-26 °C), '>20', '<10', or a range '20-30'
         """
-        return self._add_tag('temp', temp)
+        return self._bounded_range('temp', temp)
     
     def registration_number(self, regnr: str) -> 'QueryBuilder':
         """
@@ -333,9 +349,9 @@ class QueryBuilder:
         Filter by sample rate.
         
         Args:
-            rate: e.g., '44100', '48000', '>44100'
+            rate: e.g., '44100', '>48000', or a range '44100-96000'
         """
-        return self._add_tag('smp', rate)
+        return self._bounded_range('smp', rate)
     
     def remarks(self, remarks: str) -> 'QueryBuilder':
         """
@@ -353,7 +369,14 @@ class QueryBuilder:
         Returns:
             A query string suitable for the Xeno-canto API
         """
-        return ' '.join(self._tags) if self._tags else ''
+        tags = list(self._tags)
+        if self._lat_range or self._lon_range:
+            if self._has_box:
+                raise ValueError("Use either bounding_box() or a latitude/longitude range, not both.")
+            la = self._lat_range or ('-90', '90')
+            lo = self._lon_range or ('-180', '180')
+            tags.append(f"box:{la[0]},{lo[0]},{la[1]},{lo[1]}")
+        return ' '.join(tags)
     
     def __str__(self) -> str:
         """Return the query string."""
