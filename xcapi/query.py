@@ -213,7 +213,8 @@ class QueryBuilder:
         Filter by license type.
         
         Args:
-            license_type: e.g., 'cc', 'cc-by', 'cc-by-sa', etc.
+            license_type: Xeno-canto license code, e.g. 'BY', 'BY-NC', 'BY-SA',
+                    'BY-NC-SA', 'BY-ND', 'BY-NC-ND', or 'PD' (public domain).
         """
         return self._add_tag('lic', license_type)
     

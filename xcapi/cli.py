@@ -135,7 +135,7 @@ Environment Variables:
         help='Recording length in seconds (e.g., 10, 20, 10-20, "<30", ">60"). '
              'Ranges and comparison operators are supported. Quotes are required in most shells for < or >.'
     )
-    other_group.add_argument('--lic', '--license', help='License type (e.g., CC-BY, CC0)')
+    other_group.add_argument('--lic', '--license', help='License type (e.g., BY, BY-NC, BY-SA, PD)')
     other_group.add_argument('--also', help='Background species name. To perform a search for a background species name that has multiple words, you must enclose the words in double quotes.')
     other_group.add_argument('--seen', choices=['yes', 'no'], help='Was the animal seen? (yes/no)')
     other_group.add_argument('--playback', choices=['yes', 'no'], help='Was playback used? (yes/no)')
