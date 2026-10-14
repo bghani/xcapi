@@ -5,7 +5,7 @@ This package provides tools to search, download, and organize animal sounds
 from the Xeno-canto database (https://xeno-canto.org).
 """
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 __author__ = "xcapi contributors"
 __license__ = "MIT"
 
