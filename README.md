@@ -126,6 +126,15 @@ Use `--redownload` to ignore previous download records and start completely fres
 xcapi --grp birds --cnt France --output_dir ./data --redownload
 ```
 
+#### `xcapi` command not found?
+
+If your terminal doesn't recognise `xcapi` after installation (common on Windows),
+run it through Python instead — all options work the same:
+
+    python -m xcapi --grp birds --cnt Spain --metadata_only
+
+Or add Python's `Scripts` folder to your PATH (pip prints its location during installation).
+
 ---
 
 ### Python API
