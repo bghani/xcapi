@@ -118,3 +118,13 @@ def test_redownload_overwrites_only_once(tmp_path):
     assert len(lines) == 11          # header + the 10 redownloaded, none lost between flushes
     runs = json.loads((tmp_path / "xcapi_runs.json").read_text())
     assert len(runs) == 1 and len(next(iter(runs.values()))) == 10
+
+def test_api_error_real_format():
+    c = XenoCantoClient(api_key="SECRETKEY")
+    c.session.get = mock.Mock(return_value=_response(
+        400, {"error": "client_error",
+              "message": "Xeno-canto API v3 only accepts queries using tags."}))
+    with pytest.raises(RuntimeError) as e:
+        c._fetch_page("grp:birds alt:100", 1, 50)
+    assert "only accepts queries using tags" in str(e.value)
+    assert "SECRETKEY" not in str(e.value)

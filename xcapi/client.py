@@ -157,10 +157,15 @@ class XenoCantoClient:
             data = {}
 
         if isinstance(data, dict) and 'error' in data:
-            error_info = data['error'] if isinstance(data['error'], dict) else {'message': str(data['error'])}
+            err = data['error']
+            if isinstance(err, dict):                      # format documented on the API page
+                code = err.get('code', 'unknown')
+                msg = err.get('message', 'Unknown error')
+            else:                                          # format the API actually returns
+                code = str(err)
+                msg = data.get('message', 'no details given by Xeno-canto')
             raise RuntimeError(
-                f"API error [{error_info.get('code', 'unknown')}]: "
-                f"{error_info.get('message', 'Unknown error')} (query: {query})"
+                f"API error [{code}] (HTTP {response.status_code}): {msg} (query: {query})"
             )
 
         if not response.ok:
