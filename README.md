@@ -5,17 +5,18 @@ A Python package for downloading animal sound recordings from the [Xeno-canto](h
 No programming knowledge required — xcapi can be used entirely from the command line.
 
 ## Recent Updates
- 
-- **2026-08-11** — Added `id_questioned` filter (Python API) / `--id_quest` flag (CLI), for filtering recordings by identification status using the Xeno-canto `id?` search tag. Note: this uses a newer API feature that's still being finalized upstream — see the [Available query filters](#available-query-filters) section for details.
+
+- **2026-10-14 (v0.5.0–0.5.1)** — ⚠️ **If you used ranges for `year`, `month`, `sample_rate`, `latitude`, `longitude` or `temperature`, please re-run those queries.** Xeno-canto silently used only the first value of these ranges (e.g. `year("2015-2020")` returned only 2015); xcapi now sends them in a form the API applies correctly. Also new: interrupted downloads resume where they stopped, Xeno-canto's error messages are shown (and API keys are no longer printed), queries with no results print a warning, restricted species are skipped with a clear message, and `python -m xcapi` works as an alternative to the `xcapi` command. `xc_number()` now only accepts exact numbers or ranges, and `altitude()`, `uploaded()` and `time_of_day()` were removed, as Xeno-canto has no search tags for them. 
+- **2026-08-11** — Added `id_questioned` filter (Python API) / `--id_quest` flag (CLI), for filtering recordings by identification status using the Xeno-canto `id?` search tag. See the [Available query filters](#available-query-filters) section for details.
 - **2026-04-22** — Added smart incremental download tracking: xcapi now remembers what's already been downloaded and skips it on repeat runs. Introduced `xcapi_runs.json` and replaced `--skip_existing` with `--redownload` (opt-out instead of opt-in skipping).
 
 ## Features
 
-- **Comprehensive search**: Support for all [Xeno-canto API v3](https://xeno-canto.org/explore/api) search tags:
+- **Comprehensive search**: Support for the [Xeno-canto API v3](https://xeno-canto.org/explore/api) search tags:
   - Taxonomic: genus, species, subspecies, family, group, English name
-  - Geographic: country, location, area, bounding box, latitude, longitude, altitude
+  - Geographic: country, location, area, bounding box, latitude, longitude
   - Quality: rating, sound type, sex, life stage, recording method
-  - Temporal: year, month, upload date, time of day
+  - Temporal: year, month, upload date (since)
   - Metadata: recordist, length, license, equipment (device, microphone), sample rate, temperature, and more
 - **Operator and range support**: Use comparisons like `<`, `>`, and ranges (e.g. `10-20`) across supported fields.
 - **Smart incremental downloads**: xcapi remembers what you have already downloaded and only fetches new recordings on repeat runs — no duplicate downloads, no wasted bandwidth.
@@ -157,19 +158,19 @@ client = XenoCantoClient()
 query = QueryBuilder().group("birds").country("Spain").quality("A").build()
 
 # Fetch recording metadata from Xeno-canto
-recordings = client.search(query)
+recordings = client.search(query, verbose=True)
 
 # Download recordings
 # xcapi will skip recordings already downloaded and only fetch new ones
 downloader = Downloader(output_dir="./data")
-downloader.download_recordings(recordings)
+downloader.download_recordings(recordings, verbose=True)
 
 # Preview what's new without downloading audio
 # Writes metadata_only.csv with recordings not yet downloaded
 downloader.save_metadata_only(recordings)
 
 # Re-download everything from scratch
-downloader.download_recordings(recordings, redownload=True)
+downloader.download_recordings(recordings, redownload=True, verbose=True)
 ```
 
 ---
